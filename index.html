@@ -138,26 +138,31 @@
     }
 
     function enviarPagoWA() {
-        const b = document.getElementById('bnc').value.trim();
-        const r = document.getElementById('ref').value.trim();
-        if(!b || !r) return alert("Faltan datos del pago");
+    const b = document.getElementById('bnc').value.trim();
+    const r = document.getElementById('ref').value.trim();
+    if(!b || !r) return alert("❌ Faltan datos");
 
-        fetch(API, {
-            method: "POST",
-            mode: "no-cors", // Para que registre en Sheets sin trancarse
-            body: JSON.stringify({
-                tipo: "PAGO",
-                id: ID_VALIDO,
-                banco: b,
-                referencia: r
-            })
-        }).then(() => {
-            const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
-            window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
-            alert("✅ Pago registrado y notificado.");
-            location.reload();
-        });
-    }
+    // Mostramos que algo pasa
+    alert("🚀 Registrando pago en el sistema...");
+
+    fetch(API, {
+        method: "POST",
+        mode: "no-cors", // Enviamos "a ciegas" para evitar bloqueos
+        body: JSON.stringify({
+            tipo: "PAGO",
+            id: ID_VALIDO,
+            banco: b,
+            referencia: r
+        })
+    });
+
+    // Esperamos 1.5 segundos para que Google procese y abrimos WA
+    setTimeout(() => {
+        const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
+        window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
+        location.reload();
+    }, 1500);
+}
 
     function verTab(n) {
         document.getElementById('t1_cont').style.display = n===1 ? 'block' : 'none';
