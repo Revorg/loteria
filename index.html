@@ -95,28 +95,31 @@
         }).catch(e => console.error("Error cargando:", e));
     }
 
-   function hacerReserva() {
+  function hacerReserva() {
         const n = document.getElementById('nom').value.trim();
         const t = document.getElementById('tel').value.trim();
         if(!n || !t) return alert("❌ Faltan datos");
         
-        document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
+        document.getElementById('btn-env').innerText = "⏳ CONECTANDO AL VAULT...";
         document.getElementById('btn-env').disabled = true;
 
         fetch(API, {
             method: "POST",
             mode: "no-cors", 
-            body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t })
-        });
+            // Dentro de hacerReserva()
+	// Dentro de hacerReserva()
+           body: JSON.stringify({
+           numero: SELECCIONADO,
+           nombre: n,
+           telefono: t  // Asegúrate que esta 't' tenga el valor del input del teléfono
+})
 
-        // Esperamos 2 segundos para asegurar que el TLF se escriba
+        // Subimos a 3 segundos para asegurar el impacto en Sheets
         setTimeout(() => {
-            alert("✅ ¡LISTO! Confirma en WhatsApp ahora.");
             window.open(`https://wa.me/${WA_TLF}?text=Reservé el ${SELECCIONADO}. Nombre: ${n}`);
             location.reload();
-        }, 2000);
+        }, 3000);
     }
-
     function buscarID() {
         const id = document.getElementById('id-b').value.trim();
         if(!id) return alert("Pon el ID");
@@ -134,20 +137,19 @@ function enviarPagoWA() {
         const r = document.getElementById('ref').value.trim();
         if(!b || !r) return alert("❌ Faltan datos");
 
-        document.querySelector('#pago-form button').innerText = "⏳ GUARDANDO PAGO...";
-        
+        document.querySelector('#pago-form button').innerText = "⏳ PROCESANDO PAGO...";
+
         fetch(API, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify({ tipo: "PAGO", id: ID_VALIDO, banco: b, referencia: r })
         });
 
-        // Damos tiempo a Sheets de cambiar el color a rojo (Pagado)
         setTimeout(() => {
             const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
             window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
             location.reload();
-        }, 2500);
+        }, 3500);
     }
 
     function verTab(n) {
