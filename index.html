@@ -95,7 +95,7 @@
         }).catch(e => console.error("Error cargando:", e));
     }
 
-    function hacerReserva() {
+   function hacerReserva() {
         const n = document.getElementById('nom').value.trim();
         const t = document.getElementById('tel').value.trim();
         if(!n || !t) return alert("❌ Faltan datos");
@@ -105,20 +105,17 @@
 
         fetch(API, {
             method: "POST",
+            mode: "no-cors", // Crucial para que el móvil no bloquee el envío
             body: JSON.stringify({
                 numero: SELECCIONADO,
                 nombre: n,
                 telefono: t
             })
         })
-        .then(r => r.text())
-        .then(id => {
-            if(id === "YA_APARTADO") {
-                alert("⚠️ Este número se acaba de apartar. Elige otro.");
-            } else {
-                alert("✅ RESERVADO! ID: " + id);
-                window.open(`https://wa.me/${WA_TLF}?text=Reservé el ${SELECCIONADO}. ID: ${id}`);
-            }
+        .then(() => {
+            // Con no-cors no podemos leer la respuesta, pero la data llega a la hoja
+            alert("✅ ¡SOLICITUD ENVIADA!\nRevisa tu WhatsApp para confirmar.");
+            window.open(`https://wa.me/${WA_TLF}?text=Reserva el Nro: ${SELECCIONADO}, a nombre de: ${n}`);
             location.reload();
         })
         .catch(e => {
@@ -147,12 +144,12 @@
 
         fetch(API, {
             method: "POST",
+            mode: "no-cors", // Para que registre en Sheets sin trancarse
             body: JSON.stringify({
                 tipo: "PAGO",
                 id: ID_VALIDO,
                 banco: b,
-                referencia: r,
-                monto: 2500
+                referencia: r
             })
         }).then(() => {
             const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
