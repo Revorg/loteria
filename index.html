@@ -100,29 +100,21 @@
         const t = document.getElementById('tel').value.trim();
         if(!n || !t) return alert("❌ Faltan datos");
         
-        document.getElementById('btn-env').innerText = "⏳ PROCESANDO...";
+        document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
         document.getElementById('btn-env').disabled = true;
 
         fetch(API, {
             method: "POST",
-            mode: "no-cors", // Crucial para que el móvil no bloquee el envío
-            body: JSON.stringify({
-                numero: SELECCIONADO,
-                nombre: n,
-                telefono: t
-            })
-        })
-        .then(() => {
-            // Con no-cors no podemos leer la respuesta, pero la data llega a la hoja
-            alert("✅ ¡SOLICITUD ENVIADA!\nRevisa tu WhatsApp para confirmar.");
-            window.open(`https://wa.me/${WA_TLF}?text=Reserva el Nro: ${SELECCIONADO}, a nombre de: ${n}`);
-            location.reload();
-        })
-        .catch(e => {
-            alert("❌ Error de conexión");
-            document.getElementById('btn-env').innerText = "CONFIRMAR RESERVA";
-            document.getElementById('btn-env').disabled = false;
+            mode: "no-cors", 
+            body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t })
         });
+
+        // Esperamos 2 segundos para asegurar que el TLF se escriba
+        setTimeout(() => {
+            alert("✅ ¡LISTO! Confirma en WhatsApp ahora.");
+            window.open(`https://wa.me/${WA_TLF}?text=Reservé el ${SELECCIONADO}. Nombre: ${n}`);
+            location.reload();
+        }, 2000);
     }
 
     function buscarID() {
@@ -137,32 +129,26 @@
         });
     }
 
-    function enviarPagoWA() {
-    const b = document.getElementById('bnc').value.trim();
-    const r = document.getElementById('ref').value.trim();
-    if(!b || !r) return alert("❌ Faltan datos");
+function enviarPagoWA() {
+        const b = document.getElementById('bnc').value.trim();
+        const r = document.getElementById('ref').value.trim();
+        if(!b || !r) return alert("❌ Faltan datos");
 
-    // Mostramos que algo pasa
-    alert("🚀 Registrando pago en el sistema...");
+        document.querySelector('#pago-form button').innerText = "⏳ GUARDANDO PAGO...";
+        
+        fetch(API, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({ tipo: "PAGO", id: ID_VALIDO, banco: b, referencia: r })
+        });
 
-    fetch(API, {
-        method: "POST",
-        mode: "no-cors", // Enviamos "a ciegas" para evitar bloqueos
-        body: JSON.stringify({
-            tipo: "PAGO",
-            id: ID_VALIDO,
-            banco: b,
-            referencia: r
-        })
-    });
-
-    // Esperamos 1.5 segundos para que Google procese y abrimos WA
-    setTimeout(() => {
-        const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
-        window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
-        location.reload();
-    }, 1500);
-}
+        // Damos tiempo a Sheets de cambiar el color a rojo (Pagado)
+        setTimeout(() => {
+            const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
+            window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
+            location.reload();
+        }, 2500);
+    }
 
     function verTab(n) {
         document.getElementById('t1_cont').style.display = n===1 ? 'block' : 'none';
