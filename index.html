@@ -68,7 +68,7 @@
     </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbx6MOMwQUwj5-GVLc_Xyva4Xs5OR2sPDUgvO_MDjYzOf2CckOfAGFpigSvUsN-4sGGEIQ/exec";
+    const API = "https://script.google.com/macros/s/AKfycbyw2UjIQregwdTiRE4U4YsdXtCCDTVjVtB9eMStfvvyH0x36eqkz3qbOG8Oli2SJQWFRw/exec";
     const WA_TLF = "584241868334";
     let SELECCIONADO = null;
     let ID_VALIDO = null;
@@ -104,22 +104,33 @@
     }
 
   function hacerReserva() {
-        const n = document.getElementById('nom').value.trim();
-        const t = document.getElementById('tel').value.trim();
-        if(!n || !t) return alert("❌ Faltan datos");
-        
-        document.getElementById('btn-env').innerText = "⏳ CONECTANDO AL VAULT...";
-        document.getElementById('btn-env').disabled = true;
+    const n = document.getElementById('nom').value.trim();
+    const t = document.getElementById('tel').value.trim();
+    if(!n || !t) return alert("❌ Faltan datos");
 
-       fetch(API, {
+    // 🚀 GENERAMOS EL ID AQUÍ MISMO (Igual a como lo hace el Apps Script)
+    const randomID = Math.floor(1000 + Math.random() * 9000);
+    const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
+
+    document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
+    document.getElementById('btn-env').disabled = true;
+
+    // Enviamos el ID ya creado a Google para que lo guarde tal cual
+    fetch(API, {
         method: "POST",
         mode: "no-cors", 
-        body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t })
+        body: JSON.stringify({ 
+            numero: SELECCIONADO, 
+            nombre: n, 
+            telefono: t,
+            fuerzaID: ID_GENERADO // Le pasamos el ID listo
+        })
     });
 
-    // 🚀 El truco: No esperamos respuesta, saltamos en 2 segundos
+    // 📲 Ahora el WhatsApp ya lleva el ID real
     setTimeout(() => {
-        window.open(`https://wa.me/${WA_TLF}?text=Reservé el ${SELECCIONADO}. ID: Pendiente`);
+        const msg = encodeURIComponent(`Reservé el ${SELECCIONADO}. Mi ID de validación es: ${ID_GENERADO}`);
+        window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
         location.reload();
     }, 2000);
 }
