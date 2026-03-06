@@ -68,31 +68,39 @@
     </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbxBoB8JHOmASq0x02igvJp82JhoUoAG-_COjnuiJxkkIRif5xJxCyFtev4ng2LuRt5IAA/exec";
+    const API = "https://script.google.com/macros/s/AKfycbx6MOMwQUwj5-GVLc_Xyva4Xs5OR2sPDUgvO_MDjYzOf2CckOfAGFpigSvUsN-4sGGEIQ/exec";
     const WA_TLF = "584241868334";
     let SELECCIONADO = null;
     let ID_VALIDO = null;
 
     window.onload = load;
 
-    function load() {
-        fetch(API).then(r => r.json()).then(data => {
-            const g = document.getElementById('grid');
-            g.innerHTML = '';
-            let l=0, a=0, p=0;
-            data.forEach(i => {
-                const d = document.createElement('div');
-                const est = i.estado.toLowerCase().trim();
-                d.innerText = i.n < 10 ? '0'+i.n : i.n;
-                d.className = `numero ${est}`;
-                if(est === 'libre') { d.onclick = () => openM(i.n); l++; }
-                else if(est === 'pagado') p++; else a++;
-                g.appendChild(d);
+   function load() {
+        const grid = document.getElementById('grid');
+        // Añadimos un timestamp para que Google no nos mande datos viejos
+        fetch(`${API}?t=${new Date().getTime()}`)
+            .then(r => r.json())
+            .then(data => {
+                grid.innerHTML = '';
+                let l=0, a=0, p=0;
+                data.forEach(i => {
+                    if(!i.n && i.n !== 0) return; // Salta filas vacías
+                    const d = document.createElement('div');
+                    const est = (i.estado || 'libre').toLowerCase().trim();
+                    d.innerText = i.n;
+                    d.className = `numero ${est}`;
+                    if(est === 'libre') { d.onclick = () => openM(i.n); l++; }
+                    else if(est === 'pagado') p++; else a++;
+                    grid.appendChild(d);
+                });
+                document.getElementById('l-c').innerText = l;
+                document.getElementById('a-c').innerText = a;
+                document.getElementById('p-c').innerText = p;
+            })
+            .catch(e => {
+                grid.innerHTML = "❌ Error de conexión con el Vault";
+                console.error("Error:", e);
             });
-            document.getElementById('l-c').innerText = l;
-            document.getElementById('a-c').innerText = a;
-            document.getElementById('p-c').innerText = p;
-        }).catch(e => console.error("Error cargando:", e));
     }
 
   function hacerReserva() {
@@ -103,23 +111,18 @@
         document.getElementById('btn-env').innerText = "⏳ CONECTANDO AL VAULT...";
         document.getElementById('btn-env').disabled = true;
 
-        fetch(API, {
-            method: "POST",
-            mode: "no-cors", 
-            // Dentro de hacerReserva()
-	// Dentro de hacerReserva()
-           body: JSON.stringify({
-           numero: SELECCIONADO,
-           nombre: n,
-           teléfono: t  // Asegúrate que esta 't' tenga el valor del input del teléfono
-})
+       fetch(API, {
+        method: "POST",
+        mode: "no-cors", 
+        body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t })
+    });
 
-        // Subimos a 3 segundos para asegurar el impacto en Sheets
-        setTimeout(() => {
-            window.open(`https://wa.me/${WA_TLF}?text=Reservé el ${SELECCIONADO}. Nombre: ${n}`);
-            location.reload();
-        }, 3000);
-    }
+    // 🚀 El truco: No esperamos respuesta, saltamos en 2 segundos
+    setTimeout(() => {
+        window.open(`https://wa.me/${WA_TLF}?text=Reservé el ${SELECCIONADO}. ID: Pendiente`);
+        location.reload();
+    }, 2000);
+}
     function buscarID() {
         const id = document.getElementById('id-b').value.trim();
         if(!id) return alert("Pon el ID");
@@ -135,9 +138,7 @@
 function enviarPagoWA() {
         const b = document.getElementById('bnc').value.trim();
         const r = document.getElementById('ref').value.trim();
-        if(!b || !r) return alert("❌ Faltan datos");
-
-        document.querySelector('#pago-form button').innerText = "⏳ PROCESANDO PAGO...";
+        if(!b || !r) return alert("❌ Faltan datos del pago");
 
         fetch(API, {
             method: "POST",
@@ -146,10 +147,10 @@ function enviarPagoWA() {
         });
 
         setTimeout(() => {
-            const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
+            const msg = encodeURIComponent(`¡Pago Reportado!\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
             window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
             location.reload();
-        }, 3500);
+        }, 2500);
     }
 
     function verTab(n) {
