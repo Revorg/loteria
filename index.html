@@ -87,7 +87,7 @@
                     if(!i.n && i.n !== 0) return; // Salta filas vacías
                     const d = document.createElement('div');
                     const est = (i.estado || 'libre').toLowerCase().trim();
-                    d.innerText = i.n;
+                    d.innerHTML = est === 'pagado' ? `${i.n} 🍀` : (i.n < 10 ? '0'+i.n : i.n);
                     d.className = `numero ${est}`;
                     if(est === 'libre') { d.onclick = () => openM(i.n); l++; }
                     else if(est === 'pagado') p++; else a++;
