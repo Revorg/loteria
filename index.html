@@ -37,7 +37,7 @@
 
     <div class="header">🌹 LA WAWITA BIANCA23 - TRIPLE CARACAS 🌹</div>
     <h2 style="color: var(--primary); margin: 5px 0;">🌟 QUÁNTICO TRIPLE A CARACAS DOMINGO 7 pm🌟</h2>
-    <p style="margin-bottom: 15px;">Inyecta $5 y gana $300 (Bs 2500)</p>
+    <p style="margin-bottom: 15px;">Inyecta $5 (Bs 2500)y gana $300 </p>
 
     <div class="stats">
         <div><span class="stat-value" id="l-c">0</span>Libres</div>
@@ -158,7 +158,7 @@
         document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
         fetch(API, { method: "POST", mode: "no-cors", body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t, fuerzaID: ID_GEN })});
         setTimeout(() => {
-            const msg = encodeURIComponent(`Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlef 04241868334 Tu ID: ${ID_GEN}`);
+            const msg = encodeURIComponent(`Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlf 04241868334 Tu ID: ${ID_GEN}`);
             window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
             location.reload();
         }, 2000);
