@@ -84,7 +84,7 @@
     </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycby_oqPs99q0BMSssSVjIjRbBUZkZQKhM4crs8b3ame0ZlYjuOGF6C1tY73Rss0cGKoNvw/exec";
+    const API = "https://script.google.com/macros/s/AKfycbwrk2Vu1rmIRMcu_TGxEmL1esA3jKaIoOTnmLPxuq2pt_GRrjTV2WvtYeScR0RqarDycw/exec";
     const WA_TLF = "584241868334";
     let SELECCIONADO = null;
     let ID_VALIDO = null;
@@ -112,7 +112,9 @@
                     // Si es el ganador, le ponemos corona 👑 y clase especial
                     if(n_ganador && i.n == n_ganador) {
                         d.innerHTML = `${i.n} 👑`;
-                        d.className = `numero pagado ganador-anim`; // Clase para agitar
+			return;
+ 		    }    
+		    d.className = `numero pagado ganador-anim`; // Clase para agitar
                     } else {
                         d.innerHTML = est === 'pagado' ? `${i.n} 🍀` : (i.n < 10 ? '0'+i.n : i.n);
                         d.className = `numero ${est}`;
