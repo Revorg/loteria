@@ -149,23 +149,24 @@
             });
     }
 
-    function hacerReserva() {
-    const n = document.getElementById('nom').value.trim();
-    const t = document.getElementById('tel').value.trim(); // <--- Este es el número del cliente
+	function hacerReserva() {
+    	    const n = document.getElementById('nom').value.trim();
+   	    const t = document.getElementById('tel').value.trim(); // <--- Este es el número del cliente
     
-    if(!n || !t) return alert("❌ Faltan datos");
+    	    if(!n || !t) return alert("❌ Faltan datos");
 
-    const randomID = Math.floor(1000 + Math.random() * 9000);
-    const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
+    	    // Generamos el ID único
+    	    const randomID = Math.floor(1000 + Math.random() * 9000);
+            const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
 
-    document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
-    document.getElementById('btn-env').disabled = true;
+    	    document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
+            document.getElementById('btn-env').disabled = true;
 
-    // Guardamos en el Vault
-    fetch(API, {
-        method: "POST",
-        mode: "no-cors", 
-        body: JSON.stringify({ 
+    	    // Reportamos al Vault (Excel) para que tú lo veas
+    	    fetch(API, {
+        	method: "POST",
+        	mode: "no-cors", 
+        	body: JSON.stringify({ 
             numero: SELECCIONADO, 
             nombre: n, 
             telefono: t,
@@ -173,13 +174,14 @@
         })
     });
 
-    // 📲 REPARACIÓN DEL GALLITO:
-    // Enviamos el mensaje al número que el cliente ingresó ('t')
+    // 🚀 AQUÍ ESTÁ EL TRUCO:
     setTimeout(() => {
-        const instrucciones = `Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlf 04241868334 Tu ID: ${ID_GENERADO}`;
+        // Creamos el mensaje con los datos de pago
+        const instrucciones = `Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlf 04241868334. Tu ID de validación es: ${ID_GENERADO}`;
         const msg = encodeURIComponent(instrucciones);
         
-        // Aquí usamos 't' (el teléfono del cliente) en lugar de WA_TLF
+        // IMPORTANTE: Usamos 't' (teléfono del cliente) y NO 'WA_TLF'
+        // Esto hace que WhatsApp abra un chat con ÉL MISMO o le envíe el mensaje a su número
         window.open(`https://api.whatsapp.com/send?phone=${t}&text=${msg}`);
         
         location.reload();
