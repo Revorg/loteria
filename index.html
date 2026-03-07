@@ -158,7 +158,7 @@
         document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
         fetch(API, { method: "POST", mode: "no-cors", body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t, fuerzaID: ID_GEN })});
         setTimeout(() => {
-            const msg = encodeURIComponent(`Reservé el ${SELECCIONADO}. Mi ID: ${ID_GEN}`);
+            const msg = encodeURIComponent(`Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlef 04241868334 Tu ID: ${ID_GEN}`);
             window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
             location.reload();
         }, 2000);
@@ -182,7 +182,7 @@
         if(!b || !r) return alert("Faltan datos");
         fetch(API, { method: "POST", mode: "no-cors", body: JSON.stringify({ tipo: "PAGO", id: ID_VALIDO, banco: b, referencia: r })});
         setTimeout(() => {
-            const msg = encodeURIComponent(`¡Pago! ID: ${ID_VALIDO}\nRef: ${r}`);
+            const msg = encodeURIComponent(`¡Pago! TRIPLE A CARACAS DOMINGO 7 PM ID: ${ID_VALIDO}\nRef: ${r}`);
             window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
             location.reload();
         }, 2500);
