@@ -85,45 +85,68 @@
 
     window.onload = load;
 
-    function load() {
+ function load() {
         const grid = document.getElementById('grid');
+        // El t=${new Date().getTime()} es para saltarse el caché y ver datos reales
         fetch(`${API}?t=${new Date().getTime()}`)
             .then(r => r.json())
             .then(data => {
                 grid.innerHTML = '';
                 let l=0, a=0, p=0, n_ganador = null;
 
-                const infoGanador = data.find(i => i.n === "GANADOR");
-                if(infoGanador) n_ganador = infoGanador.estado;
+                // 🕵️ 1. Buscamos al ganador primero para tenerlo identificado
+                const registroGanador = data.find(i => String(i.n).toUpperCase() === "GANADOR");
+                if (registroGanador) {
+                    n_ganador = String(registroGanador.estado).trim();
+                }
 
+                // 📊 2. Dibujamos la cuadrícula
                 data.forEach(i => {
-                    if(isNaN(i.n)) return;
+                    // Si es la fila del ganador, no la dibujamos como cuadro
+                    if (isNaN(i.n) || String(i.n).toUpperCase() === "GANADOR") return;
+                    
                     const d = document.createElement('div');
+                    const numActual = String(i.n).trim();
                     const est = (i.estado || 'libre').toLowerCase().trim();
                     
-                    if(n_ganador && i.n == n_ganador) {
-                        d.innerHTML = `${i.n} 👑`;
+                    // 👑 ¿Este cuadro es el premiado?
+                    if (n_ganador && numActual === n_ganador) {
+                        d.innerHTML = `${numActual} 👑`;
                         d.className = `numero pagado ganador-anim`;
                     } else {
-                        d.innerHTML = est === 'pagado' ? `${i.n} 🍀` : (i.n < 10 ? '0'+i.n : i.n);
+                        d.innerHTML = est === 'pagado' ? `${numActual} 🍀` : (parseInt(numActual) < 10 ? '0'+numActual : numActual);
                         d.className = `numero ${est}`;
                     }
 
-                    if(est === 'libre' && !n_ganador) { d.onclick = () => openM(i.n); l++; }
-                    else if(est === 'pagado') p++; else a++;
+                    // Lógica de clics y contadores
+                    if (est === 'libre' && !n_ganador) { 
+                        d.onclick = () => openM(numActual); 
+                        l++; 
+                    } else if (est === 'pagado') {
+                        p++;
+                    } else {
+                        a++;
+                    }
                     grid.appendChild(d);
                 });
 
-                if(n_ganador) {
+                // 🎊 3. Si hay ganador, cambiamos el Header de una
+                if (n_ganador) {
                     const h = document.querySelector('.header');
                     h.innerHTML = `🎊 ¡EL GANADOR ES EL ${n_ganador}! 🎊`;
                     h.style.background = "linear-gradient(90deg, #ffd700, #ff8c00)";
                     h.style.color = "black";
+                    h.style.fontSize = "22px";
                 }
+
                 document.getElementById('l-c').innerText = l;
                 document.getElementById('a-c').innerText = a;
                 document.getElementById('p-c').innerText = p;
-            }).catch(e => grid.innerHTML = "❌ Error en el Vault");
+            })
+            .catch(e => {
+                console.error("Error:", e);
+                grid.innerHTML = "❌ Error de conexión con el Vault";
+            });
     }
 
     function hacerReserva() {
