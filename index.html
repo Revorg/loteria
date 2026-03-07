@@ -150,26 +150,41 @@
     }
 
     function hacerReserva() {
-        const n = document.getElementById('nom').value.trim();
-        const t = document.getElementById('tel').value.trim();
-        if(!n || !t) return alert("❌ Faltan datos");
-        const randomID = Math.floor(1000 + Math.random() * 9000);
-        const ID_GEN = `RQ-${SELECCIONADO}-${randomID}`;
-        document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
-        fetch(API, { method: "POST", mode: "no-cors", body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t, fuerzaID: ID_GEN })});
-        setTimeout(() => {
-        // En lugar de enviarlo a tu número fijo desde aquí, 
-        // usamos el link directo para que el cliente sea el emisor.
-        const texto = `¡Hola! Reservé para TRIPLE A CARACAS el número ${SELECCIONADO}. Mi ID de validación es: ${ID_GEN}`;
-        const msg = encodeURIComponent(texto);
+    const n = document.getElementById('nom').value.trim();
+    const t = document.getElementById('tel').value.trim(); // <--- Este es el número del cliente
+    
+    if(!n || !t) return alert("❌ Faltan datos");
+
+    const randomID = Math.floor(1000 + Math.random() * 9000);
+    const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
+
+    document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
+    document.getElementById('btn-env').disabled = true;
+
+    // Guardamos en el Vault
+    fetch(API, {
+        method: "POST",
+        mode: "no-cors", 
+        body: JSON.stringify({ 
+            numero: SELECCIONADO, 
+            nombre: n, 
+            telefono: t,
+            fuerzaID: ID_GENERADO 
+        })
+    });
+
+    // 📲 REPARACIÓN DEL GALLITO:
+    // Enviamos el mensaje al número que el cliente ingresó ('t')
+    setTimeout(() => {
+        const instrucciones = `Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlf 04241868334 Tu ID: ${ID_GENERADO}`;
+        const msg = encodeURIComponent(instrucciones);
         
-        // Usamos api.whatsapp.com/send?phone=TU_NUMERO para que le abra TU chat a ÉL
-        window.open(`https://api.whatsapp.com/send?phone=${WA_TLF}&text=${msg}`);
+        // Aquí usamos 't' (el teléfono del cliente) en lugar de WA_TLF
+        window.open(`https://api.whatsapp.com/send?phone=${t}&text=${msg}`);
         
         location.reload();
-        }, 2000);
-    }
-
+    }, 2000);
+}
     function buscarID() {
         const id = document.getElementById('id-b').value.trim();
         if(!id) return alert("Pon el ID");
