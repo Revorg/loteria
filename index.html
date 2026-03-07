@@ -91,7 +91,16 @@
 
     window.onload = load;
 
-   function load() {
+ <script>
+    // 🚨 REVISA QUE ESTA URL SEA LA DE TU ÚLTIMA IMPLEMENTACIÓN
+    const API = "https://script.google.com/macros/s/AKfycby6A60ZFRgYmgDoaOHcI_SAhxsRPeFpOv6Urqe-lZX5ZK0jFHoBDfjLCDCOWaqqkWS79w/exec";
+    const WA_TLF = "584241868334";
+    let SELECCIONADO = null;
+    let ID_VALIDO = null;
+
+    window.onload = load;
+
+    function load() {
         const grid = document.getElementById('grid');
         fetch(`${API}?t=${new Date().getTime()}`)
             .then(r => r.json())
@@ -99,41 +108,54 @@
                 grid.innerHTML = '';
                 let l=0, a=0, p=0, n_ganador = null;
 
-                // 🕵️ Buscamos si ya reportaste el GANADOR en el Sheets
+                // 🕵️ 1. Localizamos al ganador en los datos
                 const infoGanador = data.find(i => i.n === "GANADOR");
                 if(infoGanador) n_ganador = infoGanador.estado;
 
+                // 📊 2. Dibujamos la cuadrícula
                 data.forEach(i => {
-                    if(isNaN(i.n)) return; // Ignora la fila del ganador en la cuadrícula
+                    if(isNaN(i.n)) return; // Si no es un número (como "GANADOR"), no lo dibuja
                     
                     const d = document.createElement('div');
                     const est = (i.estado || 'libre').toLowerCase().trim();
                     
-                    // Si es el ganador, le ponemos corona 👑 y clase especial
+                    // Lógica visual: ¿Es el ganador o un número normal?
                     if(n_ganador && i.n == n_ganador) {
                         d.innerHTML = `${i.n} 👑`;
-			return;
- 		    }    
-		    d.className = `numero pagado ganador-anim`; // Clase para agitar
+                        d.className = `numero pagado ganador-anim`; 
                     } else {
                         d.innerHTML = est === 'pagado' ? `${i.n} 🍀` : (i.n < 10 ? '0'+i.n : i.n);
                         d.className = `numero ${est}`;
                     }
 
-                    if(est === 'libre' && !n_ganador) { d.onclick = () => openM(i.n); l++; }
-                    else if(est === 'pagado') p++; else a++;
+                    // Solo se puede clickear si no hay ganador y está libre
+                    if(est === 'libre' && !n_ganador) { 
+                        d.onclick = () => openM(i.n); 
+                        l++; 
+                    } else if(est === 'pagado') {
+                        p++;
+                    } else if(est === 'apartado') {
+                        a++;
+                    }
+                    
                     grid.appendChild(d);
                 });
 
+                // 🎊 3. Interfaz de celebración
                 if(n_ganador) {
-                    document.querySelector('.header').innerHTML = `🎊 ¡EL GANADOR ES EL ${n_ganador}! 🎊`;
-                    document.querySelector('.header').style.background = "linear-gradient(90deg, #ffd700, #ff8c00)";
-                    alert(`🚀 ¡TENEMOS GANADOR! El número ${n_ganador} se lleva el Quántico.`);
+                    const header = document.querySelector('.header');
+                    header.innerHTML = `🎊 ¡EL GANADOR ES EL ${n_ganador}! 🎊`;
+                    header.style.background = "linear-gradient(90deg, #ffd700, #ff8c00)";
+                    header.style.color = "black";
                 }
 
                 document.getElementById('l-c').innerText = l;
                 document.getElementById('a-c').innerText = a;
                 document.getElementById('p-c').innerText = p;
+            })
+            .catch(e => {
+                console.error("Error cargando:", e);
+                grid.innerHTML = "❌ Error de sincronización";
             });
     }
 
