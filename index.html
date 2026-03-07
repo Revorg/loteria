@@ -158,9 +158,15 @@
         document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
         fetch(API, { method: "POST", mode: "no-cors", body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t, fuerzaID: ID_GEN })});
         setTimeout(() => {
-            const msg = encodeURIComponent(`Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlf 04241868334 Tu ID: ${ID_GEN}`);
-            window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
-            location.reload();
+        // En lugar de enviarlo a tu número fijo desde aquí, 
+        // usamos el link directo para que el cliente sea el emisor.
+        const texto = `¡Hola! Reservé para TRIPLE A CARACAS el número ${SELECCIONADO}. Mi ID de validación es: ${ID_GEN}`;
+        const msg = encodeURIComponent(texto);
+        
+        // Usamos api.whatsapp.com/send?phone=TU_NUMERO para que le abra TU chat a ÉL
+        window.open(`https://api.whatsapp.com/send?phone=${WA_TLF}&text=${msg}`);
+        
+        location.reload();
         }, 2000);
     }
 
