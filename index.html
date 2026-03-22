@@ -15,38 +15,33 @@
         .libre { background: var(--primary); color: black; box-shadow: 0 0 10px rgba(0,255,65,0.2); }
         .apartado { background: #f1c40f; color: black; opacity: 0.6; }
         .pagado { background: #e74c3c; color: white; }
-        
-        /* 👑 EFECTO GANADOR QUÁNTICO */
-        .ganador-anim {
-            animation: shake 0.5s infinite, glow 1.5s ease-in-out infinite alternate;
-            background: linear-gradient(135deg, #ffd700, #ff8c00) !important;
-            color: black !important;
-            border: 4px solid #fff !important;
-            box-shadow: 0 0 30px #ffd700, 0 0 60px #ff8c00 !important;
-            transform: scale(1.25);
-            z-index: 100;
-            font-size: 24px !important;
-        }
-
-        @keyframes glow {
-            from { box-shadow: 0 0 20px #ffd700; }
-            to { box-shadow: 0 0 40px #ff8c00, 0 0 10px #fff; }
-        }
-
         .tabs { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2c2f33; padding: 5px; border-radius: 50px; display: flex; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.8); width: 90%; max-width: 350px; }
         .tab { flex: 1; padding: 12px; border-radius: 40px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; }
         .tab.active { background: var(--primary); color: black; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 25px; border-radius: 20px; border: 1px solid var(--primary); }
+       .modal-content { 
+            background: var(--card); 
+            width: 85%; 
+            max-width: 350px; 
+            padding: 25px; 
+            border-radius: 20px; 
+            border: 1px solid var(--primary);
+            
+            /* --- ESTAS SON LAS LÍNEAS MÁGICAS --- */
+            max-height: 80vh; /* Limita la altura al 80% de la pantalla */
+            overflow-y: auto;  /* Activa el scroll vertical si es necesario */
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iPhones */
+            /* ------------------------------------ */
+        }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #2c2f33; border: 1px solid #444; color: white; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         button.action { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; background: var(--primary); color: black; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="header" id="main-header">🌹 LA WAWITA BIANCA23 - TRIPLE CARACAS 🌹</div>
-    <h2 style="color: var(--primary); margin: 5px 0;">🌟 QUÁNTICO TRIPLE A CARACAS DOMINGO 7 pm🌟</h2>
-    <p style="margin-bottom: 15px;">Inyecta $5 (Bs 2500) y gana $300</p>
+    <div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
+    <h2 style="color: var(--primary); margin: 5px 0;">🌟 SORTEO QUÁNTICO 🌟</h2>
+    <p style="margin-bottom: 15px;">Inyecta $5 y gana $300 (Bs 2500)</p>
 
     <div class="stats">
         <div><span class="stat-value" id="l-c">0</span>Libres</div>
@@ -56,7 +51,6 @@
 
     <div id="t1_cont">
         <div id="grid" class="grid">🔄 Sincronizando con el Vault...</div>
-        <button onclick="load()" style="margin-top:20px; background:none; border:1px solid var(--primary); color:var(--primary); padding:10px 20px; border-radius:20px; font-weight:bold;">🔄 REFRESCAR PIZARRA</button>
     </div>
 
     <div id="t2_cont" style="display:none; padding: 20px;">
@@ -87,130 +81,88 @@
     </div>
 
 <script>
-    // 🔊 Audios con precarga
-    const cashSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
-    const winnerSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-
-    const API = "https://script.google.com/macros/s/AKfycbygI4cyQNyptOnOiNS_rY9xzZuZyqw4XX4NnwZQjqeGwkN6iDrEamEcr6Oma32fDdXJXw/exec";
+    const API = "https://script.google.com/macros/s/AKfycbwpcdhgO3Ll6jKHg2pKh8ewD2UsVqLP3YvcYi8XXkkK10a9f2CrlynaE46e8flLihL_ig/exec";
     const WA_TLF = "584241868334";
     let SELECCIONADO = null;
     let ID_VALIDO = null;
-    let PAGADOS_ANTERIOR = 0;
-    let GANADOR_DETECTADO = false;
 
-    window.onload = () => {
-        // Al primer clic en cualquier parte, habilitamos el audio (regla de navegadores)
-        document.body.addEventListener('click', () => {
-            cashSound.load();
-            winnerSound.load();
-        }, { once: true });
-        load();
-        setInterval(load, 15000); // Auto-refresco cada 15 seg
-    };
+    window.onload = load;
 
     function load() {
-        const grid = document.getElementById('grid');
-        fetch(`${API}?t=${new Date().getTime()}`)
-            .then(r => r.json())
-            .then(data => {
-                grid.innerHTML = '';
-                let l=0, a=0, p=0, n_ganador = null;
-
-                // 1. Detectar Ganador
-                const regGanador = data.find(i => String(i.n).toUpperCase() === "GANADOR");
-                if (regGanador && regGanador.estado) {
-                    n_ganador = String(regGanador.estado).trim();
-                }
-
-                // 2. Conteo de Pagados para el sonido ¡Kaching!
-                const conteoPagados = data.filter(i => i.estado && i.estado.toLowerCase().trim() === 'pagado').length;
-                if (conteoPagados > PAGADOS_ANTERIOR && PAGADOS_ANTERIOR !== 0) {
-                    cashSound.play().catch(e => console.log("Audio bloqueado"));
-                }
-                PAGADOS_ANTERIOR = conteoPagados;
-
-                // 3. Sonido de Ganador
-                if (n_ganador && !GANADOR_DETECTADO) {
-                    winnerSound.play().catch(e => console.log("Audio bloqueado"));
-                    GANADOR_DETECTADO = true;
-                }
-
-                // 4. Dibujar Grilla
-                data.forEach(i => {
-                    if (isNaN(i.n) || String(i.n).toUpperCase() === "GANADOR") return;
-                    
-                    const d = document.createElement('div');
-                    const numActual = String(i.n).trim();
-                    const est = (i.estado || 'libre').toLowerCase().trim();
-                    
-                    if (n_ganador && numActual === n_ganador) {
-                        d.innerHTML = `${numActual} 👑`;
-                        d.className = `numero pagado ganador-anim`;
-                    } else {
-                        d.innerHTML = est === 'pagado' ? `${numActual} 🍀` : (parseInt(numActual) < 10 ? '0'+numActual : numActual);
-                        d.className = `numero ${est}`;
-                    }
-
-                    if (est === 'libre' && !n_ganador) { 
-                        d.onclick = () => openM(numActual); 
-                        l++; 
-                    } else if (est === 'pagado') {
-                        p++;
-                    } else {
-                        a++;
-                    }
-                    grid.appendChild(d);
-                });
-
-                if (n_ganador) {
-                    const h = document.getElementById('main-header');
-                    h.innerHTML = `🎊 ¡EL GANADOR ES EL ${n_ganador}! 🎊`;
-                    h.style.background = "linear-gradient(90deg, #ffd700, #ff8c00)";
-                    h.style.color = "black";
-                }
-
-                document.getElementById('l-c').innerText = l;
-                document.getElementById('a-c').innerText = a;
-                document.getElementById('p-c').innerText = p;
+        fetch(API).then(r => r.json()).then(data => {
+            const g = document.getElementById('grid');
+            g.innerHTML = '';
+            let l=0, a=0, p=0;
+            data.forEach(i => {
+                const d = document.createElement('div');
+                const est = i.estado.toLowerCase().trim();
+                d.innerText = i.n < 10 ? '0'+i.n : i.n;
+                d.className = `numero ${est}`;
+                if(est === 'libre') { d.onclick = () => openM(i.n); l++; }
+                else if(est === 'pagado') p++; else a++;
+                g.appendChild(d);
             });
+            document.getElementById('l-c').innerText = l;
+            document.getElementById('a-c').innerText = a;
+            document.getElementById('p-c').innerText = p;
+        }).catch(e => console.error("Error cargando:", e));
     }
 
-    function hacerReserva() {
+  function hacerReserva() {
         const n = document.getElementById('nom').value.trim();
         const t = document.getElementById('tel').value.trim();
         if(!n || !t) return alert("❌ Faltan datos");
-        const randomID = Math.floor(1000 + Math.random() * 9000);
-        const ID_GEN = `RQ-${SELECCIONADO}-${randomID}`;
-        document.getElementById('btn-env').innerText = "⏳ REGISTRANDO...";
-        fetch(API, { method: "POST", mode: "no-cors", body: JSON.stringify({ numero: SELECCIONADO, nombre: n, telefono: t, fuerzaID: ID_GEN })});
-        setTimeout(() => {
-            const msg = encodeURIComponent(`Reservé el ${SELECCIONADO} TRIPLE A CARACAS. Realiza tu Pago CI 13311257 Banco 0102 Tlf 04241868334. Tu ID: ${ID_GEN}`);
-            window.open(`https://api.whatsapp.com/send?phone=${t}&text=${msg}`);
-            location.reload();
-        }, 2000);
-    }
+        
+        document.getElementById('btn-env').innerText = "⏳ CONECTANDO AL VAULT...";
+        document.getElementById('btn-env').disabled = true;
 
+        fetch(API, {
+            method: "POST",
+            mode: "no-cors", 
+            // Dentro de hacerReserva()
+	// Dentro de hacerReserva()
+           body: JSON.stringify({
+           numero: SELECCIONADO,
+           nombre: n,
+           teléfono: t  // Asegúrate que esta 't' tenga el valor del input del teléfono
+})
+
+        // Subimos a 3 segundos para asegurar el impacto en Sheets
+        setTimeout(() => {
+            window.open(`https://wa.me/${WA_TLF}?text=Reservé el ${SELECCIONADO}. Nombre: ${n}`);
+            location.reload();
+        }, 3000);
+    }
     function buscarID() {
         const id = document.getElementById('id-b').value.trim();
+        if(!id) return alert("Pon el ID");
         fetch(`${API}?buscarID=${id}`).then(r => r.json()).then(res => {
             if(res.status === "Encontrado") {
                 ID_VALIDO = id;
-                document.getElementById('info-res').innerHTML = `✅ Hallado: ${res.nombre}<br>Nro: ${res.numero}`;
+                document.getElementById('info-res').innerHTML = `✅ HALLADO: ${res.nombre}<br>Nro: ${res.numero}`;
                 document.getElementById('pago-form').style.display = 'block';
             } else alert("❌ No hallado");
         });
     }
 
-    function enviarPagoWA() {
+function enviarPagoWA() {
         const b = document.getElementById('bnc').value.trim();
         const r = document.getElementById('ref').value.trim();
-        if(!b || !r) return alert("Faltan datos");
-        fetch(API, { method: "POST", mode: "no-cors", body: JSON.stringify({ tipo: "PAGO", id: ID_VALIDO, banco: b, referencia: r })});
+        if(!b || !r) return alert("❌ Faltan datos");
+
+        document.querySelector('#pago-form button').innerText = "⏳ PROCESANDO PAGO...";
+
+        fetch(API, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({ tipo: "PAGO", id: ID_VALIDO, banco: b, referencia: r })
+        });
+
         setTimeout(() => {
-            const msg = encodeURIComponent(`¡Pago! ID: ${ID_VALIDO}\nRef: ${r}`);
+            const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
             window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
             location.reload();
-        }, 2500);
+        }, 3500);
     }
 
     function verTab(n) {
