@@ -24,14 +24,14 @@
             width: 85%; 
             max-width: 350px; 
             padding: 25px; 
+            /* Añadimos un poco más de espacio abajo para el botón */
+            padding-bottom: 40px; 
             border-radius: 20px; 
             border: 1px solid var(--primary);
             
-            /* --- ESTAS SON LAS LÍNEAS MÁGICAS --- */
-            max-height: 80vh; /* Limita la altura al 80% de la pantalla */
-            overflow-y: auto;  /* Activa el scroll vertical si es necesario */
-            -webkit-overflow-scrolling: touch; /* Scroll suave en iPhones */
-            /* ------------------------------------ */
+            max-height: 75vh; /* Bajamos de 80 a 75 para asegurar que no choque con el teclado */
+            overflow-y: auto;  
+            -webkit-overflow-scrolling: touch; 
         }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #2c2f33; border: 1px solid #444; color: white; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         button.action { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; background: var(--primary); color: black; margin-top: 10px; }
