@@ -269,27 +269,35 @@ function cerrarM(){
 }
 
 /* RESERVA */
-function hacerReserva(){
+function hacerReserva() {
   const n = document.getElementById('nom').value.trim();
   const t = document.getElementById('tel').value.trim();
-  if(!n || !t) return alert("Faltan datos");
 
-  alert("Reserva enviada (simulado). Conecta tu API aquí.");
-  cerrarM();
-}
+  if (!n || !t) return alert("Faltan datos");
 
-/* TABS */
-function verTab(n){
-  const t1 = document.getElementById('t1_cont');
-  if(n===1){
-    t1.style.display="block";
-    document.getElementById('b1').classList.add("active");
-    document.getElementById('b2').classList.remove("active");
-  } else {
-    t1.style.display="none";
-    document.getElementById('b2').classList.add("active");
-    document.getElementById('b1').classList.remove("active");
-  }
+  const randomID = Math.floor(1000 + Math.random() * 9000);
+  const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
+
+  document.getElementById('btn-env').innerText = "⏳ CONECTANDO...";
+  document.getElementById('btn-env').disabled = true;
+
+  fetch(API, {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify({
+      numero: SELECCIONADO,
+      nombre: n,
+      telefono: t,
+      fuerzaID: ID_GENERADO
+    })
+  });
+
+  setTimeout(() => {
+    const instrucciones = `Reservé el ${SELECCIONADO}. Realiza tu Pago CI 13311257 Banco 0102. Tu ID de validación es: ${ID_GENERADO}`;
+    const msg = encodeURIComponent(instrucciones);
+    window.open(`https://api.whatsapp.com/send?phone=${t}&text=${msg}`);
+    location.reload();
+  }, 2500);
 }
 
 /* GANADOR */
