@@ -4,44 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎲 Lotería Quántica</title>
+
   <style>
     :root { --primary: #00ff41; --bg: #0b0e11; --card: #1a1d21; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding: 10px; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding: 10px; }
+
     .header { background: linear-gradient(90deg, #ff41b4, #ff8c00); padding: 15px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; }
+
+    .info-box {
+      background: #1a1d21;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px auto;
+      max-width: 420px;
+      text-align: center;
+      border: 1px solid var(--primary);
+    }
+
+    .info-box h3 { color: var(--primary); margin-bottom: 10px; font-size: 22px; }
+    .info-box p { margin: 6px 0; font-size: 16px; }
+
     .stats { display: flex; justify-content: space-around; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
     .stat-value { font-size: 22px; font-weight: bold; color: var(--primary); display: block; }
-    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 400px; margin: 0 auto; padding-bottom: 100px; }
+
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 400px; margin: 0 auto; padding-bottom: 20px; }
     .numero { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 18px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
-    .libre { background: var(--primary); color: black; }
+    .libre { background: var(--primary); color: black; cursor: pointer; }
     .apartado { background: #f1c40f; color: black; opacity: 0.6; }
     .pagado { background: #e74c3c; color: white; }
+
     .tabs { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2c2f33; padding: 5px; border-radius: 50px; display: flex; width: 90%; max-width: 350px; }
     .tab { flex: 1; padding: 12px; border-radius: 40px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; }
     .tab.active { background: var(--primary); color: black; }
+
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
     .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 25px; border-radius: 20px; border: 1px solid var(--primary); }
+
     input { width: 100%; padding: 12px; margin: 10px 0; background: #2c2f33; border: 1px solid #444; color: white; border-radius: 10px; }
     button.action { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; background: var(--primary); color: black; margin-top: 10px; }
-    /* Animación para el ganador */
+
+    /* Animación ganador */
     .animacion-ganador { animation: brillo 1s infinite alternate; }
     @keyframes brillo { from { box-shadow: 0 0 10px gold; } to { box-shadow: 0 0 30px orange; } }
   </style>
 </head>
+
 <body>
 
   <div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
-  <h2 style="color: var(--primary); margin: 5px 0;">🌟 SORTEO QUÁNTICO 🌟</h2>
-  <p style="margin-bottom: 15px;">💰 Inyecta $5 (Bs 2500) y gana $300</p>
 
-  <!-- Bloque informativo -->
-  <div style="background:#1a1d21; padding:15px; border-radius:12px; margin:15px 0; text-align:left;">
-    <h3 style="color:var(--primary)">ℹ️ Información del Sorteo</h3>
-    <p>🎯 Premio: $300 (equivalente en Bs)</p>
-    <p>🎲 Se juega con Triple Caracas - Terminales de Triple A</p>
-    <p>⏰ Domingo 7:00 PM</p>
-    <h4 style="color:var(--primary)">🏦 Datos Bancarios</h4>
-    <p>Banco de Venezuela - CI: 13.311.257</p>
-    <p>Telf Pago Móvil: 04241868334</p>
+  <!-- INFORMACIÓN CENTRADA Y LLAMATIVA -->
+  <div class="info-box">
+    <h3>🌟 SORTEO QUÁNTICO 🌟</h3>
+    <p>💰 Inyecta $5 (Bs 2500) y gana $300</p>
+    <p style="font-size:18px; font-weight:bold; color:#ffdf5e;">
+      🎲 JUEGA CON TRIPLE A CARACAS  
+      <br>⏰ DOMINGO A LAS 7 PM
+    </p>
   </div>
 
   <div class="stats">
@@ -50,13 +69,20 @@
     <div><span class="stat-value" id="p-c">0</span>Pagados</div>
   </div>
 
-  <div id="grid" class="grid">🔄 Sincronizando...</div>
-
-  <div class="tabs">
-    <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
-    <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
+  <!-- TAB 1: RESERVAR -->
+  <div id="t1_cont">
+    <div id="grid" class="grid">🔄 Cargando...</div>
   </div>
 
+  <!-- DATOS BANCARIOS AL FINAL -->
+  <div class="info-box" style="margin-top:20px;">
+    <h3>🏦 DATOS BANCARIOS</h3>
+    <p>Banco de Venezuela</p>
+    <p>CI: 13.311.257</p>
+    <p>Pago Móvil: 04241868334</p>
+  </div>
+
+  <!-- MODAL RESERVA -->
   <div id="m-res" class="modal">
     <div class="modal-content">
       <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
@@ -65,6 +91,12 @@
       <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
       <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:15px; width:100%;">CANCELAR</button>
     </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
+    <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
   </div>
 
 <script>
@@ -78,40 +110,17 @@
       const g = document.getElementById('grid');
       g.innerHTML = '';
       let l=0, a=0, p=0;
+
       data.forEach(i => {
         const d = document.createElement('div');
         const est = i.estado.toLowerCase().trim();
-        d.innerText = i.n < 10 ? '0'+i.n : i.n;
+        const num = i.n < 10 ? '0'+i.n : i.n;
+
         d.className = `numero ${est}`;
-        if(est === 'libre') { d.onclick = () => openM(i.n); l++; }
-        else if(est === 'pagado') { d.innerHTML = (i.n < 10 ? '0'+i.n : i.n) + " 🍀"; p++; }
-        else a++;
-        g.appendChild(d);
-      });
-      document.getElementById('l-c').innerText = l;
-      document.getElementById('a-c').innerText = a;
-      document.getElementById('p-c').innerText = p;
-    });
-  }
+        d.innerText = num;
 
-  function openM(n) { SELECCIONADO = n; document.getElementById('num-span').innerText = n; document.getElementById('m-res').style.display = 'flex'; }
-  function cerrarM() { document.getElementById('m-res').style.display = 'none'; }
-
-  // Función para marcar ganador
-  function marcarGanador(numGanador) {
-    const grid = document.getElementById('grid').children;
-    for(let d of grid) {
-      if(d.innerText.includes(numGanador)) {
-        d.style.background = "gold";
-        d.style.color = "black";
-        d.innerHTML = `🏆 ${numGanador} 🏆`;
-        d.classList.add("animacion-ganador");
-      }
-    }
-  }
-
-  // Ejemplo: simular ganador
-  // marcarGanador("07");
-</script>
-</body>
-</html>
+        if(est === 'libre') {
+          d.onclick = () => openM(i.n);
+          l++;
+        }
+        else if(est === 'pagado') {
