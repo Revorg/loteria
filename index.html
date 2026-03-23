@@ -1,185 +1,117 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎲 Lotería Quántica</title>
-    <style>
-        :root { --primary: #00ff41; --bg: #0b0e11; --card: #1a1d21; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
-        .header { background: linear-gradient(90deg, #ff41b4, #ff8c00); padding: 15px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .stats { display: flex; justify-content: space-around; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        .stat-value { font-size: 22px; font-weight: bold; color: var(--primary); display: block; }
-        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 400px; margin: 0 auto; padding-bottom: 100px; }
-        .numero { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 18px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
-        .libre { background: var(--primary); color: black; box-shadow: 0 0 10px rgba(0,255,65,0.2); }
-        .apartado { background: #f1c40f; color: black; opacity: 0.6; }
-        .pagado { background: #e74c3c; color: white; }
-        .tabs { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2c2f33; padding: 5px; border-radius: 50px; display: flex; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.8); width: 90%; max-width: 350px; }
-        .tab { flex: 1; padding: 12px; border-radius: 40px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; }
-        .tab.active { background: var(--primary); color: black; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-       .modal-content { 
-            background: var(--card); 
-            width: 85%; 
-            max-width: 350px; 
-            padding: 25px; 
-            /* Añadimos un poco más de espacio abajo para el botón */
-            padding-bottom: 40px; 
-            border-radius: 20px; 
-            border: 1px solid var(--primary);
-            
-            max-height: 75vh; /* Bajamos de 80 a 75 para asegurar que no choque con el teclado */
-            overflow-y: auto;  
-            -webkit-overflow-scrolling: touch; 
-        }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #2c2f33; border: 1px solid #444; color: white; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
-        button.action { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; background: var(--primary); color: black; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎲 Lotería Quántica</title>
+  <style>
+    :root { --primary: #00ff41; --bg: #0b0e11; --card: #1a1d21; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding: 10px; }
+    .header { background: linear-gradient(90deg, #ff41b4, #ff8c00); padding: 15px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; }
+    .stats { display: flex; justify-content: space-around; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+    .stat-value { font-size: 22px; font-weight: bold; color: var(--primary); display: block; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 400px; margin: 0 auto; padding-bottom: 100px; }
+    .numero { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 18px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+    .libre { background: var(--primary); color: black; }
+    .apartado { background: #f1c40f; color: black; opacity: 0.6; }
+    .pagado { background: #e74c3c; color: white; }
+    .tabs { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2c2f33; padding: 5px; border-radius: 50px; display: flex; width: 90%; max-width: 350px; }
+    .tab { flex: 1; padding: 12px; border-radius: 40px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; }
+    .tab.active { background: var(--primary); color: black; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 25px; border-radius: 20px; border: 1px solid var(--primary); }
+    input { width: 100%; padding: 12px; margin: 10px 0; background: #2c2f33; border: 1px solid #444; color: white; border-radius: 10px; }
+    button.action { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; background: var(--primary); color: black; margin-top: 10px; }
+    /* Animación para el ganador */
+    .animacion-ganador { animation: brillo 1s infinite alternate; }
+    @keyframes brillo { from { box-shadow: 0 0 10px gold; } to { box-shadow: 0 0 30px orange; } }
+  </style>
 </head>
 <body>
 
-    <div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
-    <h2 style="color: var(--primary); margin: 5px 0;">🌟 SORTEO QUÁNTICO 🌟</h2>
-    <p style="margin-bottom: 15px;"> */*Inyecta $5 (Bs 2500) y gana $300*/* </p>
+  <div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
+  <h2 style="color: var(--primary); margin: 5px 0;">🌟 SORTEO QUÁNTICO 🌟</h2>
+  <p style="margin-bottom: 15px;">💰 Inyecta $5 (Bs 2500) y gana $300</p>
 
-    <div class="stats">
-        <div><span class="stat-value" id="l-c">0</span>Libres</div>
-        <div><span class="stat-value" id="a-c">0</span>Apart.</div>
-        <div><span class="stat-value" id="p-c">0</span>Pagados</div>
-    </div>
+  <!-- Bloque informativo -->
+  <div style="background:#1a1d21; padding:15px; border-radius:12px; margin:15px 0; text-align:left;">
+    <h3 style="color:var(--primary)">ℹ️ Información del Sorteo</h3>
+    <p>🎯 Premio: $300 (equivalente en Bs)</p>
+    <p>🎲 Se juega con Triple Caracas - Terminales de Triple A</p>
+    <p>⏰ Domingo 7:00 PM</p>
+    <h4 style="color:var(--primary)">🏦 Datos Bancarios</h4>
+    <p>Banco de Venezuela - CI: 13.311.257</p>
+    <p>Telf Pago Móvil: 04241868334</p>
+  </div>
 
-    <div id="t1_cont">
-        <div id="grid" class="grid">🔄 Sincronizando con el Vault...</div>
-    </div>
+  <div class="stats">
+    <div><span class="stat-value" id="l-c">0</span>Libres</div>
+    <div><span class="stat-value" id="a-c">0</span>Apart.</div>
+    <div><span class="stat-value" id="p-c">0</span>Pagados</div>
+  </div>
 
-    <div id="t2_cont" style="display:none; padding: 20px;">
-        <h3>🔍 VALIDAR RESERVA</h3>
-        <input type="text" id="id-b" placeholder="Tu ID (Ej: RQ-25-1234)">
-        <button class="action" onclick="buscarID()">BUSCAR MI NÚMERO</button>
-        <div id="pago-form" style="display:none; margin-top:20px; border-top: 1px solid #444; padding-top: 20px;">
-            <p id="info-res" style="color: var(--primary);"></p>
-            <input type="text" id="bnc" placeholder="Banco de origen">
-            <input type="text" id="ref" placeholder="Referencia del pago">
-            <button class="action" style="background:#e74c3c; color:white;" onclick="enviarPagoWA()">REPORTAR PAGO</button>
-        </div>
-    </div>
+  <div id="grid" class="grid">🔄 Sincronizando...</div>
 
-    <div class="tabs">
-        <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
-        <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
-    </div>
+  <div class="tabs">
+    <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
+    <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
+  </div>
 
-    <div id="m-res" class="modal">
-        <div class="modal-content">
-            <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
-            <input type="text" id="nom" placeholder="Tu nombre">
-            <input type="tel" id="tel" placeholder="WhatsApp">
-            <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
-            <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:15px; width:100%;">CANCELAR</button>
-        </div>
+  <div id="m-res" class="modal">
+    <div class="modal-content">
+      <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
+      <input type="text" id="nom" placeholder="Tu nombre">
+      <input type="tel" id="tel" placeholder="WhatsApp">
+      <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
+      <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:15px; width:100%;">CANCELAR</button>
     </div>
+  </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbx-GNuGtSs1NgPurnTR0MpcihWJpOo1HX1RwE6ZrpJRKhdkngVk_dyCnLaDE6wpYy6DJw/exec";
-    const WA_TLF = "584241868334";
-    let SELECCIONADO = null;
-    let ID_VALIDO = null;
+  const API = "https://script.google.com/macros/s/AKfycbx-GNuGtSs1NgPurnTR0MpcihWJpOo1HX1RwE6ZrpJRKhdkngVk_dyCnLaDE6wpYy6DJw/exec";
+  let SELECCIONADO = null;
 
-    window.onload = load;
+  window.onload = load;
 
-    function load() {
-        fetch(API).then(r => r.json()).then(data => {
-            const g = document.getElementById('grid');
-            g.innerHTML = '';
-            let l=0, a=0, p=0;
-            data.forEach(i => {
-                const d = document.createElement('div');
-                const est = i.estado.toLowerCase().trim();
-                d.innerText = i.n < 10 ? '0'+i.n : i.n;
-                d.className = `numero ${est}`;
-                if(est === 'libre') { d.onclick = () => openM(i.n); l++; }
-                else if(est === 'pagado') p++; else a++;
-                g.appendChild(d);
-            });
-            document.getElementById('l-c').innerText = l;
-            document.getElementById('a-c').innerText = a;
-            document.getElementById('p-c').innerText = p;
-        }).catch(e => console.error("Error cargando:", e));
-    }
-
- function hacerReserva() {
-    const n = document.getElementById('nom').value.trim();
-    const t = document.getElementById('tel').value.trim();
-    
-    if(!n || !t) return alert("❌ Faltan datos");
-    
-    // Generamos el ID único (ej: RQ-88-4532)
-    const randomID = Math.floor(1000 + Math.random() * 9000);
-    const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
-
-    document.getElementById('btn-env').innerText = "⏳ CONECTANDO AL VAULT...";
-    document.getElementById('btn-env').disabled = true;
-
-    fetch(API, {
-        method: "POST",
-        mode: "no-cors", 
-        body: JSON.stringify({
-            numero: SELECCIONADO,
-            nombre: n,
-            telefono: t,
-            fuerzaID: ID_GENERADO
-        })
+  function load() {
+    fetch(API).then(r => r.json()).then(data => {
+      const g = document.getElementById('grid');
+      g.innerHTML = '';
+      let l=0, a=0, p=0;
+      data.forEach(i => {
+        const d = document.createElement('div');
+        const est = i.estado.toLowerCase().trim();
+        d.innerText = i.n < 10 ? '0'+i.n : i.n;
+        d.className = `numero ${est}`;
+        if(est === 'libre') { d.onclick = () => openM(i.n); l++; }
+        else if(est === 'pagado') { d.innerHTML = (i.n < 10 ? '0'+i.n : i.n) + " 🍀"; p++; }
+        else a++;
+        g.appendChild(d);
+      });
+      document.getElementById('l-c').innerText = l;
+      document.getElementById('a-c').innerText = a;
+      document.getElementById('p-c').innerText = p;
     });
+  }
 
-    setTimeout(() => {
-        // Mensaje con instrucciones de pago para el cliente
-        const instrucciones = `Reservé el ${SELECCIONADO}. Realiza tu Pago CI 13311257 Banco 0102. Tu ID de validación es: ${ID_GENERADO}`;
-        const msg = encodeURIComponent(instrucciones);
-        window.open(`https://api.whatsapp.com/send?phone=${t}&text=${msg}`);
-        location.reload();
-    }, 3000);
-}
-    function buscarID() {
-        const id = document.getElementById('id-b').value.trim();
-        if(!id) return alert("Pon el ID");
-        fetch(`${API}?buscarID=${id}`).then(r => r.json()).then(res => {
-            if(res.status === "Encontrado") {
-                ID_VALIDO = id;
-                document.getElementById('info-res').innerHTML = `✅ HALLADO: ${res.nombre}<br>Nro: ${res.numero}`;
-                document.getElementById('pago-form').style.display = 'block';
-            } else alert("❌ No hallado");
-        });
+  function openM(n) { SELECCIONADO = n; document.getElementById('num-span').innerText = n; document.getElementById('m-res').style.display = 'flex'; }
+  function cerrarM() { document.getElementById('m-res').style.display = 'none'; }
+
+  // Función para marcar ganador
+  function marcarGanador(numGanador) {
+    const grid = document.getElementById('grid').children;
+    for(let d of grid) {
+      if(d.innerText.includes(numGanador)) {
+        d.style.background = "gold";
+        d.style.color = "black";
+        d.innerHTML = `🏆 ${numGanador} 🏆`;
+        d.classList.add("animacion-ganador");
+      }
     }
+  }
 
-function enviarPagoWA() {
-        const b = document.getElementById('bnc').value.trim();
-        const r = document.getElementById('ref').value.trim();
-        if(!b || !r) return alert("❌ Faltan datos");
-
-        document.querySelector('#pago-form button').innerText = "⏳ PROCESANDO PAGO...";
-
-        fetch(API, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({ tipo: "PAGO", id: ID_VALIDO, banco: b, referencia: r })
-        });
-
-        setTimeout(() => {
-            const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
-            window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
-            location.reload();
-        }, 3500);
-    }
-
-    function verTab(n) {
-        document.getElementById('t1_cont').style.display = n===1 ? 'block' : 'none';
-        document.getElementById('t2_cont').style.display = n===2 ? 'block' : 'none';
-        document.getElementById('b1').className = `tab ${n===1?'active':''}`;
-        document.getElementById('b2').className = `tab ${n===2?'active':''}`;
-    }
-    function openM(n) { SELECCIONADO = n; document.getElementById('num-span').innerText = n; document.getElementById('m-res').style.display = 'flex'; }
-    function cerrarM() { document.getElementById('m-res').style.display = 'none'; }
+  // Ejemplo: simular ganador
+  // marcarGanador("07");
 </script>
 </body>
 </html>
