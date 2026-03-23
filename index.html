@@ -1,126 +1,310 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎲 Lotería Quántica</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎲 Lotería Quántica</title>
 
-  <style>
-    :root { --primary: #00ff41; --bg: #0b0e11; --card: #1a1d21; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding: 10px; }
+<style>
+:root { --primary:#00ff41; --bg:#0b0e11; --card:#1a1d21; }
 
-    .header { background: linear-gradient(90deg, #ff41b4, #ff8c00); padding: 15px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; }
+body {
+  font-family:'Segoe UI',sans-serif;
+  background:var(--bg);
+  color:white;
+  margin:0;
+  padding:10px;
+  text-align:center;
+}
 
-    .info-box {
-      background: #1a1d21;
-      padding: 15px;
-      border-radius: 12px;
-      margin: 15px auto;
-      max-width: 420px;
-      text-align: center;
-      border: 1px solid var(--primary);
-    }
+/* Encabezado */
+.header {
+  background:linear-gradient(90deg,#ff41b4,#ff8c00);
+  padding:15px;
+  border-radius:12px;
+  font-weight:bold;
+  margin-bottom:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.5);
+}
 
-    .info-box h3 { color: var(--primary); margin-bottom: 10px; font-size: 22px; }
-    .info-box p { margin: 6px 0; font-size: 16px; }
+/* Caja informativa */
+.info-box {
+  background:#1a1d21;
+  padding:15px;
+  border-radius:12px;
+  margin:15px auto;
+  max-width:420px;
+  border:1px solid var(--primary);
+  animation:flotar 3s ease-in-out infinite;
+}
 
-    .stats { display: flex; justify-content: space-around; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-    .stat-value { font-size: 22px; font-weight: bold; color: var(--primary); display: block; }
+@keyframes flotar {
+  0% { transform:translateY(0px); }
+  50% { transform:translateY(-4px); }
+  100% { transform:translateY(0px); }
+}
 
-    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 400px; margin: 0 auto; padding-bottom: 20px; }
-    .numero { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 18px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
-    .libre { background: var(--primary); color: black; cursor: pointer; }
-    .apartado { background: #f1c40f; color: black; opacity: 0.6; }
-    .pagado { background: #e74c3c; color: white; }
+.info-box h3 { color:var(--primary); font-size:22px; margin-bottom:10px; }
+.info-box p { margin:6px 0; font-size:16px; }
 
-    .tabs { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2c2f33; padding: 5px; border-radius: 50px; display: flex; width: 90%; max-width: 350px; }
-    .tab { flex: 1; padding: 12px; border-radius: 40px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; }
-    .tab.active { background: var(--primary); color: black; }
+/* Stats */
+.stats {
+  display:flex;
+  justify-content:space-around;
+  background:var(--card);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+.stat-value { font-size:22px; font-weight:bold; color:var(--primary); }
 
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-    .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 25px; border-radius: 20px; border: 1px solid var(--primary); }
+/* Grilla */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  max-width:400px;
+  margin:0 auto;
+  padding-bottom:20px;
+}
 
-    input { width: 100%; padding: 12px; margin: 10px 0; background: #2c2f33; border: 1px solid #444; color: white; border-radius: 10px; }
-    button.action { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; background: var(--primary); color: black; margin-top: 10px; }
+.numero {
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  font-weight:bold;
+  font-size:18px;
+  border:1px solid rgba(255,255,255,0.1);
+  transition:0.2s;
+}
 
-    /* Animación ganador */
-    .animacion-ganador { animation: brillo 1s infinite alternate; }
-    @keyframes brillo { from { box-shadow: 0 0 10px gold; } to { box-shadow: 0 0 30px orange; } }
-  </style>
+.libre { background:var(--primary); color:black; cursor:pointer; }
+.apartado { background:#f1c40f; color:black; opacity:0.6; }
+.pagado { background:#e74c3c; color:white; }
+
+/* Tabs */
+.tabs {
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#2c2f33;
+  padding:5px;
+  border-radius:50px;
+  display:flex;
+  width:90%;
+  max-width:350px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.8);
+}
+
+.tab {
+  flex:1;
+  padding:12px;
+  border-radius:40px;
+  border:none;
+  background:none;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+.tab.active { background:var(--primary); color:black; }
+
+/* Modal */
+.modal {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.9);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-content {
+  background:var(--card);
+  width:85%;
+  max-width:350px;
+  padding:25px;
+  border-radius:20px;
+  border:1px solid var(--primary);
+}
+
+/* Inputs */
+input {
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  background:#2c2f33;
+  border:1px solid #444;
+  color:white;
+  border-radius:10px;
+}
+
+/* Botones */
+button.action {
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:16px;
+  background:var(--primary);
+  color:black;
+  margin-top:10px;
+}
+
+/* Efecto ganador */
+.animacion-ganador {
+  animation:brillo 1s infinite alternate;
+}
+@keyframes brillo {
+  from { box-shadow:0 0 10px gold; }
+  to { box-shadow:0 0 30px orange; }
+}
+</style>
 </head>
 
 <body>
 
-  <div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
+<div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
 
-  <!-- INFORMACIÓN CENTRADA Y LLAMATIVA -->
-  <div class="info-box">
-    <h3>🌟 SORTEO QUÁNTICO 🌟</h3>
-    <p>💰 Inyecta $5 (Bs 2500) y gana $300</p>
-    <p style="font-size:18px; font-weight:bold; color:#ffdf5e;">
-      🎲 JUEGA CON TRIPLE A CARACAS  
-      <br>⏰ DOMINGO A LAS 7 PM
-    </p>
-  </div>
+<!-- INFO PRINCIPAL -->
+<div class="info-box">
+  <h3>🌟 SORTEO QUÁNTICO 🌟</h3>
+  <p>💰 Inyecta $5 (Bs 2500) y gana $300</p>
+  <p style="font-size:18px; font-weight:bold; color:#ffdf5e;">
+    🎲 JUEGA CON TRIPLE A CARACAS  
+    <br>⏰ DOMINGO A LAS 7 PM
+  </p>
+</div>
 
-  <div class="stats">
-    <div><span class="stat-value" id="l-c">0</span>Libres</div>
-    <div><span class="stat-value" id="a-c">0</span>Apart.</div>
-    <div><span class="stat-value" id="p-c">0</span>Pagados</div>
-  </div>
+<!-- STATS -->
+<div class="stats">
+  <div><span class="stat-value" id="l-c">0</span>Libres</div>
+  <div><span class="stat-value" id="a-c">0</span>Apart.</div>
+  <div><span class="stat-value" id="p-c">0</span>Pagados</div>
+</div>
 
-  <!-- TAB 1: RESERVAR -->
-  <div id="t1_cont">
-    <div id="grid" class="grid">🔄 Cargando...</div>
-  </div>
+<!-- TAB 1 -->
+<div id="t1_cont">
+  <div id="grid" class="grid">🔄 Cargando...</div>
+</div>
 
-  <!-- DATOS BANCARIOS AL FINAL -->
-  <div class="info-box" style="margin-top:20px;">
-    <h3>🏦 DATOS BANCARIOS</h3>
-    <p>Banco de Venezuela</p>
-    <p>CI: 13.311.257</p>
-    <p>Pago Móvil: 04241868334</p>
-  </div>
+<!-- DATOS BANCARIOS -->
+<div class="info-box" style="margin-top:20px;">
+  <h3>🏦 DATOS BANCARIOS</h3>
+  <p>Banco de Venezuela</p>
+  <p>CI: 13.311.257</p>
+  <p>Pago Móvil: 04241868334</p>
+</div>
 
-  <!-- MODAL RESERVA -->
-  <div id="m-res" class="modal">
-    <div class="modal-content">
-      <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
-      <input type="text" id="nom" placeholder="Tu nombre">
-      <input type="tel" id="tel" placeholder="WhatsApp">
-      <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
-      <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:15px; width:100%;">CANCELAR</button>
-    </div>
+<!-- MODAL RESERVA -->
+<div id="m-res" class="modal">
+  <div class="modal-content">
+    <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
+    <input type="text" id="nom" placeholder="Tu nombre">
+    <input type="tel" id="tel" placeholder="WhatsApp">
+    <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
+    <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:15px; width:100%;">CANCELAR</button>
   </div>
+</div>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
-    <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
-  </div>
+<!-- TABS -->
+<div class="tabs">
+  <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
+  <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
+</div>
 
 <script>
-  const API = "https://script.google.com/macros/s/AKfycbx-GNuGtSs1NgPurnTR0MpcihWJpOo1HX1RwE6ZrpJRKhdkngVk_dyCnLaDE6wpYy6DJw/exec";
-  let SELECCIONADO = null;
+const API = "https://script.google.com/macros/s/AKfycbx-GNuGtSs1NgPurnTR0MpcihWJpOo1HX1RwE6ZrpJRKhdkngVk_dyCnLaDE6wpYy6DJw/exec";
+let SELECCIONADO = null;
 
-  window.onload = load;
+window.onload = load;
 
-  function load() {
-    fetch(API).then(r => r.json()).then(data => {
-      const g = document.getElementById('grid');
-      g.innerHTML = '';
-      let l=0, a=0, p=0;
+/* CARGAR GRILLA */
+function load() {
+  fetch(API).then(r=>r.json()).then(data=>{
+    const g = document.getElementById('grid');
+    g.innerHTML = '';
+    let l=0,a=0,p=0;
 
-      data.forEach(i => {
-        const d = document.createElement('div');
-        const est = i.estado.toLowerCase().trim();
-        const num = i.n < 10 ? '0'+i.n : i.n;
+    data.forEach(i=>{
+      const d = document.createElement('div');
+      const est = i.estado.toLowerCase().trim();
+      const num = i.n < 10 ? '0'+i.n : i.n;
 
-        d.className = `numero ${est}`;
-        d.innerText = num;
+      d.className = `numero ${est}`;
+      d.innerText = num;
 
-        if(est === 'libre') {
-          d.onclick = () => openM(i.n);
-          l++;
-        }
-        else if(est === 'pagado') {
+      if(est === 'libre') {
+        d.onclick = ()=>openM(i.n);
+        l++;
+      }
+      else if(est === 'pagado') {
+        d.innerHTML = num + " 🍀";
+        p++;
+      }
+      else a++;
+
+      g.appendChild(d);
+    });
+
+    document.getElementById('l-c').innerText = l;
+    document.getElementById('a-c').innerText = a;
+    document.getElementById('p-c').innerText = p;
+  });
+}
+
+/* MODAL */
+function openM(n){
+  SELECCIONADO = n;
+  document.getElementById('num-span').innerText = n;
+  document.getElementById('m-res').style.display = 'flex';
+}
+function cerrarM(){
+  document.getElementById('m-res').style.display = 'none';
+}
+
+/* RESERVA */
+function hacerReserva(){
+  const n = document.getElementById('nom').value.trim();
+  const t = document.getElementById('tel').value.trim();
+  if(!n || !t) return alert("Faltan datos");
+
+  alert("Reserva enviada (simulado). Conecta tu API aquí.");
+  cerrarM();
+}
+
+/* TABS */
+function verTab(n){
+  const t1 = document.getElementById('t1_cont');
+  if(n===1){
+    t1.style.display="block";
+    document.getElementById('b1').classList.add("active");
+    document.getElementById('b2').classList.remove("active");
+  } else {
+    t1.style.display="none";
+    document.getElementById('b2').classList.add("active");
+    document.getElementById('b1').classList.remove("active");
+  }
+}
+
+/* GANADOR */
+function marcarGanador(numGanador){
+  const grid = document.getElementById('grid').children;
+  for(let d of grid){
+    if(d.innerText.includes(numGanador)){
+      d.style.background="gold";
+      d.style.color="black";
+      d.innerHTML=`🏆 ${numGanador} 🏆`;
+      d.classList.add("animacion-ganador");
+    }
+  }
+}
+</script>
+
+</body>
+</html>
