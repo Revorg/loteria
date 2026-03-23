@@ -193,6 +193,20 @@ button.action {
   <div id="grid" class="grid">🔄 Cargando...</div>
 </div>
 
+<!-- TAB 2 -->
+<div id="t2_cont" style="display:none; padding:20px;">
+  <h3>🔍 VALIDAR RESERVA</h3>
+  <input type="text" id="id-b" placeholder="Tu ID (Ej: RQ-25-1234)">
+  <button class="action" onclick="buscarID()">BUSCAR MI NÚMERO</button>
+
+  <div id="pago-form" style="display:none; margin-top:20px;">
+    <p id="info-res" style="color:var(--primary);"></p>
+    <input type="text" id="bnc" placeholder="Banco de origen">
+    <input type="text" id="ref" placeholder="Referencia del pago">
+    <button class="action" style="background:#e74c3c; color:white;" onclick="enviarPagoWA()">REPORTAR PAGO</button>
+  </div>
+</div>
+
 <!-- DATOS BANCARIOS -->
 <div class="info-box" style="margin-top:20px;">
   <h3>🏦 DATOS BANCARIOS</h3>
@@ -221,6 +235,7 @@ button.action {
 <script>
 const API = "https://script.google.com/macros/s/AKfycbx-GNuGtSs1NgPurnTR0MpcihWJpOo1HX1RwE6ZrpJRKhdkngVk_dyCnLaDE6wpYy6DJw/exec";
 let SELECCIONADO = null;
+let ID_VALIDO = null;
 
 window.onload = load;
 
@@ -269,11 +284,10 @@ function cerrarM(){
 }
 
 /* RESERVA */
-function hacerReserva() {
+function hacerReserva(){
   const n = document.getElementById('nom').value.trim();
   const t = document.getElementById('tel').value.trim();
-
-  if (!n || !t) return alert("Faltan datos");
+  if(!n || !t) return alert("Faltan datos");
 
   const randomID = Math.floor(1000 + Math.random() * 9000);
   const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
@@ -300,6 +314,107 @@ function hacerReserva() {
   }, 2500);
 }
 
+/* BUSCAR ID */
+function buscarID(){
+  const id = document.getElementById('id-b').value.trim();
+  if(!id) return alert("Pon el ID");
+
+  fetch(`${API}?buscarID=${id}`).then(r=>r.json()).then(res=>{
+    if(res.status === "Encontrado"){
+      ID_VALIDO = id;
+      document.getElementById('info-res').innerHTML = `✅ HALLADO: ${res.nombre}<br>Nro: ${res.numero}`;
+      document.getElementById('pago-form').style.display = 'block';
+    } else {
+      alert("❌ No hallado");
+    }
+  });
+}
+
+/* PAGO */
+function enviarPagoWA(){
+  const b = document.getElementById('bnc').value.trim();
+  const r = document.getElementById('ref').value.trim();
+  if(!b || !r) return alert("Faltan datos");
+
+  fetch(API, {
+    method:"POST",
+    mode:"no-cors",
+    body:JSON.stringify({
+      tipo:"PAGO",
+      id:ID_VALIDO,
+      banco:b,
+      referencia:r
+    })
+  });
+
+  setTimeout(()=>{
+    const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
+    window.open(`https://wa.me/584241868334?text=${msg}`);
+    location.reload();
+  },2500);
+}
+
+/* TABS */
+function verTab(n){
+  const t1 = document.getElementById('t1_cont');
+  const t2 = document.getElementById('t2_cont');
+
+  if(n===1){
+    t1.style.display="block";
+    t2.style.display="none";
+    b1.classList.add("active");
+    b2.classList.remove("active");
+  } else {
+    t1.style.display="none";
+    t2.style.display="block";
+    b2.classList.add("active");
+    b1.classList.remove("active");
+  }
+}
+
+/* CONFETI MULTICOLOR */
+function lanzarConfeti() {
+  const canvas = document.createElement("canvas");
+  canvas.style.position = "fixed";
+  canvas.style.top = 0;
+  canvas.style.left = 0;
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.pointerEvents = "none";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  const piezas = [];
+  const total = 120;
+
+  for (let i = 0; i < total; i++) {
+    piezas.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * total,
+      color: `hsl(${Math.random()*360},100%,50%)`
+    });
+  }
+
+  function animar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    piezas.forEach((p, i) => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.r, p.r);
+      p.y += Math.cos(p.d) + 2;
+      p.x += Math.sin(p.d);
+      if (p.y > canvas.height) piezas[i].y = -10;
+    });
+    requestAnimationFrame(animar);
+  }
+
+  animar();
+  setTimeout(() => canvas.remove(), 3000);
+}
+
 /* GANADOR */
 function marcarGanador(numGanador){
   const grid = document.getElementById('grid').children;
@@ -309,6 +424,7 @@ function marcarGanador(numGanador){
       d.style.color="black";
       d.innerHTML=`🏆 ${numGanador} 🏆`;
       d.classList.add("animacion-ganador");
+      lanzarConfeti();
     }
   }
 }
