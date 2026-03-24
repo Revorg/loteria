@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎲 Lotería Quántica</title>
+
+
+<style>
+:root { --primary:#00ff41; --bg:#0b0e11; --card:#1a1d21; }
+
+body {
+  background:#02040a;
+  color:#e5f7ff;
+  font-family: system-ui, sans-serif;
+  margin:0;
+  padding:0;
+}
+
+/* Grilla */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  max-width:400px;
+  margin:0 auto;
+  padding-bottom:20px;
+}
+
+.numero {
+  border-radius:6px;
+  padding:6px 4px;
+  text-align:center;
+  font-weight:600;
+  background:#050816;
+  color:#b9e6ff;
+  box-shadow:0 0 4px rgba(0,255,255,0.25);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+/* libre */
+.numero.libre:hover {
+  transform:translateY(-1px);
+  box-shadow:0 0 8px rgba(34,211,238,0.9);
+  cursor:pointer;
+}
+
+/* pagado */
+.numero.pagado {
+  background:#064e3b;
+  color:#d1fae5;
+  box-shadow:0 0 6px rgba(16,185,129,0.7);
+  animation:pulsePagado 1.8s ease-in-out infinite;
+}
+
+/* apartado */
+.numero.apartado {
+  background:#3b0764;
+  color:#f5d0fe;
+  box-shadow:0 0 6px rgba(192,132,252,0.6);
+}
+
+@keyframes pulsePagado {
+  0%   { box-shadow:0 0 6px rgba(16,185,129,0.7); }
+  50%  { box-shadow:0 0 14px rgba(34,197,94,1); }
+  100% { box-shadow:0 0 6px rgba(16,185,129,0.7); }
+}
+
+#countdown {
+  text-align:center;
+  margin-top:10px;
+  color:#a5f3fc;
+  font-size:0.9rem;
+}
+
+/* Encabezado */
+.header {
+  background:linear-gradient(90deg,#ff41b4,#ff8c00);
+  padding:15px;
+  border-radius:12px;
+  font-weight:bold;
+  margin-bottom:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.5);
+}
+
+/* Caja informativa */
+.info-box {
+  background:#1a1d21;
+  padding:15px;
+  border-radius:12px;
+  margin:15px auto;
+  max-width:420px;
+  border:1px solid var(--primary);
+  animation:flotar 3s ease-in-out infinite;
+}
+
+@keyframes flotar {
+  0% { transform:translateY(0px); }
+  50% { transform:translateY(-4px); }
+  100% { transform:translateY(0px); }
+}
+
+.info-box h3 { color:var(--primary); font-size:22px; margin-bottom:10px; }
+.info-box p { margin:6px 0; font-size:16px; }
+
+/* Stats */
+.stats {
+  display:flex;
+  justify-content:space-around;
+  background:var(--card);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+.stat-value { font-size:22px; font-weight:bold; color:var(--primary); }
+
+/* Grilla */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  max-width:400px;
+  margin:0 auto;
+  padding-bottom:20px;
+}
+
+.numero {
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  font-weight:bold;
+  font-size:18px;
+  border:1px solid rgba(255,255,255,0.1);
+  transition:0.2s;
+}
+
+.libre { background:var(--primary); color:black; cursor:pointer; }
+.apartado { background:#f1c40f; color:black; opacity:0.6; }
+.pagado { background:#e74c3c; color:white; }
+
+/* Tabs */
+.tabs {
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#2c2f33;
+  padding:5px;
+  border-radius:50px;
+  display:flex;
+  width:90%;
+  max-width:350px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.8);
+}
+
+.tab {
+  flex:1;
+  padding:12px;
+  border-radius:40px;
+  border:none;
+  background:none;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+.tab.active { background:var(--primary); color:black; }
+
+/* Modal */
+.modal {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.9);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-content {
+  background:var(--card);
+  width:85%;
+  max-width:350px;
+  padding:25px;
+  border-radius:20px;
+  border:1px solid var(--primary);
+}
+
+/* Inputs */
+input {
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  background:#2c2f33;
+  border:1px solid #444;
+  color:white;
+  border-radius:10px;
+}
+
+/* Botones */
+button.action {
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:16px;
+  background:var(--primary);
+  color:black;
+  margin-top:10px;
+}
+
+<style>
+
+/* Efecto ganador */
+.animacion-ganador {
+  animation: brillo 1s infinite alternate;
+}
+
+@keyframes brillo {
+  from { box-shadow:0 0 10px gold; }
+  to   { box-shadow:0 0 30px orange; }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
+
+<div id="countdown"></div>   <!-- ← ESTE ES EL QUE FALTABA -->
+
+<!-- INFO PRINCIPAL -->
+<div class="info-box">
+  <h3>🌟 SORTEO QUÁNTICO 🌟</h3>
+  <p>💰 Inyecta $5 (Bs 2500) y gana $300</p>
+  <p style="font-size:18px; font-weight:bold; color:#ffdf5e;">
+    🎲 JUEGA CON TRIPLE "A" CARACAS  
+    <br>⏰ DOMINGO A LAS 7 PM
+  </p>
+</div>
+
+<!-- GRILLA -->
+<div id="grid" class="grid"></div>
+
+<!-- STATS -->
+<div class="stats">
+  <div><span class="stat-value" id="l-c">0</span>Libres</div>
+  <div><span class="stat-value" id="a-c">0</span>Apart.</div>
+  <div><span class="stat-value" id="p-c">0</span>Pagados</div>
+</div>
+
+<!-- TAB 1 -->
+<div id="t1_cont" style="padding:20px;">
+  <h3>📝 RESERVAR</h3>
+  <p>Selecciona un número en la grilla para reservarlo.</p>
+</div>
+
+
+<!-- TAB 2 -->
+<div id="t2_cont" style="display:none; padding:20px;">
+  <h3>🔍 VALIDAR RESERVA</h3>
+  <input type="text" id="id-b" placeholder="Tu ID (Ej: RQ-25-1234)">
+  <button class="action" onclick="buscarID()">BUSCAR MI NÚMERO</button>
+
+  <div id="pago-form" style="display:none; margin-top:20px;">
+    <p id="info-res" style="color:var(--primary);"></p>
+    <input type="text" id="bnc" placeholder="Banco de origen">
+    <input type="text" id="ref" placeholder="Referencia del pago">
+    <button class="action" style="background:#e74c3c; color:white;" onclick="enviarPagoWA()">REPORTAR PAGO</button>
+  </div>
+</div> <!-- ← ESTE ERA EL QUE FALTABA -->
+
+<!-- DATOS BANCARIOS -->
+<div class="info-box" style="margin-top:20px;">
+  <h3>🏦 DATOS BANCARIOS Pago Móvil</h3>
+  <p>Banco de Venezuela</p>
+  <p>CI: 13.311.257</p>
+  <p>Teléfono: 04241868334</p>
+</div>
+
+<!-- MODAL RESERVA -->
+<div id="m-res" class="modal">
+  <div class="modal-content">
+    <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
+    <input type="text" id="nom" placeholder="Tu nombre">
+    <input type="tel" id="tel" placeholder="WhatsApp">
+    <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
+    <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:15px; width:100%;">CANCELAR</button>
+  </div>
+</div>
+
+
+<!-- TABS -->
+<div class="tabs">
+  <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
+  <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwXyPtfuHndQh50JoGWA9toWYpaQ-XBnUIKqYnZNA7SO3XA1bkVH0qU_a58yncTvVKqmA/exec";
+
+/* CONTADOR REGRESIVO */
+const FECHA_SORTEO = new Date("2025-12-31T20:00:00-04:00");
+
+function startCountdown() {
+  const el = document.getElementById("countdown");
+  function tick() {
+    const diff = FECHA_SORTEO - new Date();
+    if (diff <= 0) {
+      el.textContent = "⏱ Sorteo en curso o finalizado";
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff / 3600000) % 24);
+    const m = Math.floor((diff / 60000) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    el.textContent = `⏱ Falta: ${d}d ${h}h ${m}m ${s}s`;
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+</script>
+
+/* GRILLA */
+function load() {
+  fetch(API)
+    .then(r => r.json())
+    .then(data => {
+
+      const g = document.getElementById("grid");
+      g.innerHTML = "";
+
+      let libres = 0;
+      let apartados = 0;
+      let pagados = 0;
+
+      data.forEach(i => {
+
+        let numero = parseInt(i.n);
+        if (isNaN(numero)) return;
+
+        const num = numero < 10 ? "0" + numero : numero;
+
+        let est = (i.estado || "").toString().trim().toLowerCase();
+        if (["reservado", "res", "apartado"].includes(est)) est = "apartado";
+
+        const d = document.createElement("div");
+        d.className = `numero ${est}`;
+        d.innerText = num;
+
+        if (est === "libre") {
+          d.onclick = () => openM(numero);
+          libres++;
+        }
+        else if (est === "pagado") {
+          d.innerHTML = num + " 🍀";
+          pagados++;
+        }
+        else {
+          apartados++;
+        }
+
+        g.appendChild(d);
+      });
+
+      document.getElementById("l-c").innerText = libres;
+      document.getElementById("a-c").innerText = apartados;
+      document.getElementById("p-c").innerText = pagados;
+    });
+}
+
+/* MODAL — CORREGIDO PARA TU HTML REAL */
+function openM(n){
+  document.getElementById("num-span").innerText = n;   // correcto
+  document.getElementById("m-res").style.display = "flex"; // correcto
+}
+
+function cerrarM(){
+  document.getElementById("m-res").style.display = "none";
+}
+
+/* RESERVA */
+function hacerReserva(){
+  const nombre = document.getElementById("nom").value.trim();
+  const tel    = document.getElementById("tel").value.trim();
+  const numero = document.getElementById("num-span").innerText;
+
+  if (!nombre || !tel) {
+    alert("Completa los datos");
+    return;
+  }
+
+  const fuerzaID = `RQ-${numero}-${Math.floor(1000 + Math.random()*9000)}`;
+
+  fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      tipo: "RESERVA",
+      numero: numero,
+      nombre: nombre,
+      telefono: tel,
+      fuerzaID: fuerzaID
+    })
+  })
+  .then(r => r.text())              // ← primero como texto
+  .then(t => {
+    let res;
+    try {
+      res = JSON.parse(t);          // ← intento parsear JSON
+    } catch(e) {
+      alert("Respuesta inesperada del servidor:\n" + t);
+      return;
+    }
+
+    if (res.status === "success") {
+      alert("Reserva registrada");
+      cerrarM();
+      load();
+    } else {
+      alert("Error al reservar:\n" + (res.message || JSON.stringify(res)));
+    }
+  })
+  .catch(err => {
+    alert("Error de conexión:\n" + err);
+  });
+}
+
+/* BUSCAR POR ID */
+function buscarID(){
+  const id = document.getElementById('id-b').value.trim();
+  if(!id) return alert("Pon el ID");
+
+  fetch(`${API}?buscarID=${id}`).then(r=>r.json()).then(res=>{
+    if(res.status === "Encontrado"){
+      document.getElementById('info-res').innerHTML = `✅ HALLADO: ${res.nombre}<br>Nro: ${res.numero}`;
+      document.getElementById('pago-form').style.display = 'block';
+    } else {
+      alert("❌ No hallado");
+    }
+  });
+}
+
+/* INICIO */
+document.addEventListener("DOMContentLoaded", ()=>{
+  startCountdown();
+  load();
+});
+</script>
+</body>
+</html>
