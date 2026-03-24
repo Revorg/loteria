@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎲 Lotería Quántica</title>
+
+<style>
+:root { --primary:#00ff41; --bg:#0b0e11; --card:#1a1d21; }
+
+body {
+  font-family:'Segoe UI',sans-serif;
+  background:var(--bg);
+  color:white;
+  margin:0;
+  padding:10px;
+  text-align:center;
+  padding-bottom:120px; /* <- para que no tape el footer */
+}
+
+/* Encabezado */
+.header {
+  background:linear-gradient(90deg,#ff41b4,#ff8c00);
+  padding:15px;
+  border-radius:12px;
+  font-weight:bold;
+  margin-bottom:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.5);
+}
+
+/* Caja informativa */
+.info-box {
+  background:#1a1d21;
+  padding:15px;
+  border-radius:12px;
+  margin:15px auto;
+  max-width:420px;
+  border:1px solid var(--primary);
+  animation:flotar 3s ease-in-out infinite;
+}
+
+@keyframes flotar {
+  0% { transform:translateY(0px); }
+  50% { transform:translateY(-4px); }
+  100% { transform:translateY(0px); }
+}
+
+.info-box h3 { color:var(--primary); font-size:22px; margin-bottom:10px; }
+.info-box p { margin:6px 0; font-size:16px; }
+
+/* Stats */
+.stats {
+  display:flex;
+  justify-content:space-around;
+  background:var(--card);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+.stat-value { font-size:22px; font-weight:bold; color:var(--primary); }
+
+/* Grilla */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  max-width:400px;
+  margin:0 auto;
+  padding-bottom:20px;
+}
+
+.numero {
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  font-weight:bold;
+  font-size:18px;
+  border:1px solid rgba(255,255,255,0.1);
+  transition:0.2s;
+}
+
+.libre { background:var(--primary); color:black; cursor:pointer; }
+.apartado { background:#f1c40f; color:black; opacity:0.6; }
+.pagado { background:#e74c3c; color:white; }
+
+/* Tabs */
+.tabs {
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#2c2f33;
+  padding:5px;
+  border-radius:50px;
+  display:flex;
+  width:90%;
+  max-width:350px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.8);
+}
+
+.tab {
+  flex:1;
+  padding:12px;
+  border-radius:40px;
+  border:none;
+  background:none;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+.tab.active { background:var(--primary); color:black; }
+
+/* Modal */
+.modal {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.9);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-content {
+  background:var(--card);
+  width:85%;
+  max-width:350px;
+  padding:25px;
+  border-radius:20px;
+  border:1px solid var(--primary);
+}
+
+/* Inputs */
+input {
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  background:#2c2f33;
+  border:1px solid #444;
+  color:white;
+  border-radius:10px;
+}
+
+/* Botones */
+button.action {
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:16px;
+  background:var(--primary);
+  color:black;
+  margin-top:10px;
+}
+
+/* Efecto ganador */
+.animacion-ganador {
+  animation:brillo 1s infinite alternate;
+}
+@keyframes brillo {
+  from { box-shadow:0 0 10px gold; }
+  to { box-shadow:0 0 30px orange; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
+
+<!-- INFO PRINCIPAL -->
+<div class="info-box">
+  <h3>🌟 SORTEO QUÁNTICO 🌟</h3>
+  <p>💰 Inyecta $5 (Bs 2500) y gana $300</p>
+  <p style="font-size:18px; font-weight:bold; color:#ffdf5e;">
+    🎲 JUEGA CON TRIPLE A CARACAS  
+    <br>⏰ DOMINGO A LAS 7 PM
+  </p>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div><span class="stat-value" id="l-c">0</span>Libres</div>
+  <div><span class="stat-value" id="a-c">0</span>Apart.</div>
+  <div><span class="stat-value" id="p-c">0</span>Pagados</div>
+</div>
+
+<!-- TAB 1 -->
+<div id="t1_cont">
+  <div id="grid" class="grid">🔄 Cargando...</div>
+</div>
+
+<!-- TAB 2 -->
+<div id="t2_cont" style="display:none; padding:20px;">
+  <h3>🔍 VALIDAR RESERVA</h3>
+  <input type="text" id="id-b" placeholder="Tu ID (Ej: RQ-25-1234)">
+  <button class="action" onclick="buscarID()">BUSCAR MI NÚMERO</button>
+
+  <div id="pago-form" style="display:none; margin-top:20px;">
+    <p id="info-res" style="color:var(--primary);"></p>
+    <input type="text" id="bnc" placeholder="Banco de origen">
+    <input type="text" id="ref" placeholder="Referencia del pago">
+    <button class="action" style="background:#e74c3c; color:white;" onclick="enviarPagoWA()">REPORTAR PAGO</button>
+  </div>
+</div>
+
+<!-- DATOS BANCARIOS -->
+<div class="info-box" style="margin-top:20px;">
+  <h3>🏦 DATOS BANCARIOS Pago Móvil</h3>
+  <p>Banco de Venezuela</p>
+  <p>CI: 13.311.257</p>
+  <p>Teléfono: 04241868334</p>
+</div>
+
+</div>
+
+<!-- MODAL RESERVA -->
+<div id="m-res" class="modal">
+  <div class="modal-content">
+    <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
+    <input type="text" id="nom" placeholder="Tu nombre">
+    <input type="tel" id="tel" placeholder="WhatsApp">
+    <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
+    <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:15px; width:100%;">CANCELAR</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
+  <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycby0CG80Tgasdj_F7f3cuT58dGKjU8_potnkejOEsvD9v0QoZheazoXaUgMpWlMDxWi79A/exec";
+let SELECCIONADO = null;
+let ID_VALIDO = null;
+
+window.onload = load;
+
+/* CARGAR GRILLA */
+function load() {
+  fetch(API).then(r=>r.json()).then(data=>{
+    const g = document.getElementById('grid');
+    g.innerHTML = '';
+    let l=0,a=0,p=0;
+
+    data.forEach(i=>{
+      const d = document.createElement('div');
+      const est = i.estado.toLowerCase().trim();
+      const num = i.n < 10 ? '0'+i.n : i.n;
+
+      d.className = `numero ${est}`;
+      d.innerText = num;
+
+      if(est === 'libre') {
+        d.onclick = ()=>openM(i.n);
+        l++;
+      }
+      else if(est === 'pagado') {
+        d.innerHTML = num + " 🍀";
+        p++;
+      }
+      else a++;
+
+      g.appendChild(d);
+    });
+
+    document.getElementById('l-c').innerText = l;
+    document.getElementById('a-c').innerText = a;
+    document.getElementById('p-c').innerText = p;
+  });
+}
+
+/* MODAL */
+function openM(n){
+  SELECCIONADO = n;
+  document.getElementById('num-span').innerText = n;
+  document.getElementById('m-res').style.display = 'flex';
+}
+function cerrarM(){
+  document.getElementById('m-res').style.display = 'none';
+}
+
+/* RESERVA */
+function hacerReserva(){
+  const n = document.getElementById('nom').value.trim();
+  const t = document.getElementById('tel').value.trim();
+  if(!n || !t) return alert("Faltan datos");
+
+  const randomID = Math.floor(1000 + Math.random() * 9000);
+  const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
+
+  document.getElementById('btn-env').innerText = "⏳ CONECTANDO...";
+  document.getElementById('btn-env').disabled = true;
+
+  fetch(API, {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify({
+      numero: SELECCIONADO,
+      nombre: n,
+      telefono: t,
+      fuerzaID: ID_GENERADO
+    })
+  });
+
+  setTimeout(() => {
+    const instrucciones = `Reservé el ${SELECCIONADO}. Realiza tu Pago CI 13311257 Banco 0102. Tu ID de validación es: ${ID_GENERADO}`;
+    const msg = encodeURIComponent(instrucciones);
+    window.open(`https://api.whatsapp.com/send?phone=${t}&text=${msg}`);
+    location.reload();
+  }, 2500);
+}
+
+/* BUSCAR ID */
+function buscarID(){
+  const id = document.getElementById('id-b').value.trim();
+  if(!id) return alert("Pon el ID");
+
+  fetch(`${API}?buscarID=${id}`).then(r=>r.json()).then(res=>{
+    if(res.status === "Encontrado"){
+      ID_VALIDO = id;
+      document.getElementById('info-res').innerHTML = `✅ HALLADO: ${res.nombre}<br>Nro: ${res.numero}`;
+      document.getElementById('pago-form').style.display = 'block';
+    } else {
+      alert("❌ No hallado");
+    }
+  });
+}
+
+/* PAGO */
+function enviarPagoWA(){
+  const b = document.getElementById('bnc').value.trim();
+  const r = document.getElementById('ref').value.trim();
+  if(!b || !r) return alert("Faltan datos");
+
+  fetch(API, {
+    method:"POST",
+    mode:"no-cors",
+    body:JSON.stringify({
+      tipo:"PAGO",
+      id:ID_VALIDO,
+      banco:b,
+      referencia:r
+    })
+  });
+
+  setTimeout(()=>{
+    const msg = encodeURIComponent(`¡Listo! Reporto pago:\nID: ${ID_VALIDO}\nBanco: ${b}\nRef: ${r}`);
+    window.open(`https://wa.me/584241868334?text=${msg}`);
+    location.reload();
+  },2500);
+}
+
+/* TABS */
+function verTab(n){
+  const t1 = document.getElementById('t1_cont');
+  const t2 = document.getElementById('t2_cont');
+
+  if(n===1){
+    t1.style.display="block";
+    t2.style.display="none";
+    b1.classList.add("active");
+    b2.classList.remove("active");
+  } else {
+    t1.style.display="none";
+    t2.style.display="block";
+    b2.classList.add("active");
+    b1.classList.remove("active");
+  }
+}
+
+/* CONFETI MULTICOLOR */
+function lanzarConfeti() {
+  const canvas = document.createElement("canvas");
+  canvas.style.position = "fixed";
+  canvas.style.top = 0;
+  canvas.style.left = 0;
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.pointerEvents = "none";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  const piezas = [];
+  const total = 120;
+
+  for (let i = 0; i < total; i++) {
+    piezas.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * total,
+      color: `hsl(${Math.random()*360},100%,50%)`
+    });
+  }
+
+  function animar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    piezas.forEach((p, i) => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.r, p.r);
+      p.y += Math.cos(p.d) + 2;
+      p.x += Math.sin(p.d);
+      if (p.y > canvas.height) piezas[i].y = -10;
+    });
+    requestAnimationFrame(animar);
+  }
+
+  animar();
+  setTimeout(() => canvas.remove(), 3000);
+}
+
+/* GANADOR */
+function marcarGanador(numGanador){
+  const grid = document.getElementById('grid').children;
+  for(let d of grid){
+    if(d.innerText.includes(numGanador)){
+      d.style.background="gold";
+      d.style.color="black";
+      d.innerHTML=`🏆 ${numGanador} 🏆`;
+      d.classList.add("animacion-ganador");
+      lanzarConfeti();
+    }
+  }
+}
+</script>
+
+</body>
+</html>
