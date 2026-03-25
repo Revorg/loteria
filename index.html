@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>🎲 Lotería Quántica | Triple A Caracas</title>
+    <style>
+        :root { --primary: #00ff41; --bg: #0b0e11; --card: #1a1d21; --gold: #ffd700; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            color: white; 
+            text-align: center; 
+            margin: 0; 
+            padding: 8px; 
+            padding-bottom: 140px;
+        }
+        
+        .header { background: linear-gradient(90deg, #ff41b4, #ff8c00); padding: 12px; border-radius: 12px; margin-bottom: 8px; font-weight: bold; }
+        .quantico-badge { background: rgba(0,0,0,0.5); padding: 8px; border-radius: 20px; margin: 8px 0; font-size: 14px; letter-spacing: 1px; }
+        .quantico-badge span { color: var(--gold); font-weight: bold; }
+        
+        .stats { display: flex; justify-content: space-around; background: var(--card); padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #333; }
+        .stat-value { font-size: 22px; font-weight: bold; color: var(--primary); display: block; }
+        
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 400px; margin: 0 auto; padding-bottom: 10px; }
+        .numero { 
+            aspect-ratio: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 16px; 
+            transition: 0.1s; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            cursor: pointer; 
+            position: relative; 
+        }
+        .numero .nombre-mini { font-size: 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+        .libre { background: var(--primary); color: black; }
+        .apartado { background: #f1c40f; color: black; opacity: 0.8; }
+        .pagado { background: #e74c3c; color: white; position: relative; }
+        .pagado::after { content: "🍀"; position: absolute; top: -5px; right: -5px; font-size: 14px; }
+        .winner { animation: winnerFlash 0.5s ease-in-out 3; background: gold !important; border: 2px solid #fff; }
+        
+        @keyframes winnerFlash { 0%, 100% { background: gold; transform: scale(1); } 50% { background: #ffaa00; transform: scale(1.02); box-shadow: 0 0 15px gold; } }
+        
+        .tabs { 
+            position: fixed; 
+            bottom: 10px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: #2c2f33; 
+            padding: 5px; 
+            border-radius: 50px; 
+            display: flex; 
+            z-index: 100; 
+            width: 90%; 
+            max-width: 350px; 
+        }
+        .tab { flex: 1; padding: 10px; border-radius: 40px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .tab.active { background: var(--primary); color: black; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); width: 90%; max-width: 350px; padding: 20px; border-radius: 20px; border: 1px solid var(--primary); max-height: 80vh; overflow-y: auto; }
+        
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #2c2f33; border: 1px solid #444; color: white; border-radius: 10px; font-size: 16px; }
+        button.action { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; background: var(--primary); color: black; margin-top: 10px; cursor: pointer; }
+        
+        .payment-instructions { background: #2c2f33; padding: 12px; border-radius: 12px; margin-top: 15px; font-size: 12px; text-align: left; }
+        .payment-instructions h4 { margin: 0 0 8px 0; color: var(--primary); }
+        .payment-instructions ul { margin: 5px 0; padding-left: 20px; }
+        
+        /* RECUADRO DE DATOS BANCARIOS FIJO */
+        .bank-data {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 350px;
+            background: linear-gradient(135deg, #1a472a, #0a2a1a);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 12px;
+            text-align: center;
+            z-index: 95;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .bank-data h4 {
+            margin: 0 0 8px 0;
+            color: var(--gold);
+            font-size: 14px;
+        }
+        .bank-data p {
+            margin: 5px 0;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .bank-data .highlight {
+            color: var(--primary);
+            font-size: 13px;
+        }
+        
+        .tooltip-custom { position: fixed; background: #000; color: #0ff; padding: 5px 10px; border-radius: 8px; font-size: 12px; z-index: 2000; pointer-events: none; border: 1px solid #0ff; white-space: nowrap; }
+        .toast { position: fixed; bottom: 150px; left: 50%; transform: translateX(-50%); background: var(--primary); color: black; padding: 10px 20px; border-radius: 30px; font-weight: bold; z-index: 1500; animation: fadeUp 0.3s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        
+        .loading-spinner { text-align: center; padding: 40px; color: var(--primary); }
+        .error-msg { text-align: center; padding: 40px; color: #ff5555; }
+        
+        @media (max-width: 480px) { 
+            .numero { font-size: 14px; } 
+            .nombre-mini { font-size: 7px; } 
+            .grid { gap: 4px; }
+            .bank-data { bottom: 80px; padding: 10px; }
+            .bank-data p { font-size: 11px; }
+            body { padding-bottom: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">🌹 LA BIANCA23 - LOTERÍA 🌹</div>
+<h2 style="color: var(--primary); margin: 5px 0;">🌟 SORTEO QUÁNTICO 🌟</h2>
+<p style="margin-bottom: 5px;">🎯 Inyecta $5 (Bs 2500) y gana $300 🎯</p>
+
+<div class="quantico-badge">
+    ⚡ <span>QUANTICO</span> juega con Triple "A" de Caracas ⚡<br>
+    🗓️ Todos los Domingos a las 7 p.m.
+</div>
+
+<div class="stats">
+    <div><span class="stat-value" id="l-c">0</span>Libres</div>
+    <div><span class="stat-value" id="a-c">0</span>Apart.</div>
+    <div><span class="stat-value" id="p-c">0</span>Pagados</div>
+    <div><span class="stat-value" id="winner-badge">🏆</span>Ganador</div>
+</div>
+
+<div id="t1_cont">
+    <div id="grid" class="grid">🔄 Cargando números...</div>
+</div>
+
+<div id="t2_cont" style="display:none; padding: 15px;">
+    <h3>🔍 VALIDAR RESERVA</h3>
+    <input type="text" id="id-b" placeholder="Tu ID (Ej: RQ-25-1234)">
+    <button class="action" onclick="buscarID()">BUSCAR MI NÚMERO</button>
+    <div id="pago-form" style="display:none; margin-top:15px; border-top: 1px solid #444; padding-top: 15px;">
+        <p id="info-res" style="color: var(--primary);"></p>
+        <input type="text" id="bnc" placeholder="Banco de origen">
+        <input type="text" id="ref" placeholder="Referencia del pago">
+        <button class="action" style="background:#e74c3c; color:white;" onclick="enviarPagoWA()">REPORTAR PAGO</button>
+    </div>
+</div>
+
+<!-- RECUADRO DE DATOS BANCARIOS FIJO -->
+<div class="bank-data">
+    <h4>💵 DATOS BANCARIOS - PAGO MÓVIL</h4>
+    <p>📄 <strong>C.I:</strong> <span class="highlight">13.311.257</span></p>
+    <p>📱 <strong>Teléfono:</strong> <span class="highlight">+58 424-1868334</span></p>
+    <p>🏦 <strong>Banco:</strong> 0102 (Venezuela) / 0134 (Banesco)</p>
+    <p>💰 <strong>Monto:</strong> Bs 2.500 (o $5 USD)</p>
+    <p>📌 <strong>Referencia:</strong> Tu ID de reserva</p>
+</div>
+
+<div class="tabs">
+    <button id="b1" class="tab active" onclick="verTab(1)">📝 RESERVAR</button>
+    <button id="b2" class="tab" onclick="verTab(2)">💵 PAGAR</button>
+</div>
+
+<div id="m-res" class="modal">
+    <div class="modal-content">
+        <h3>📌 RESERVAR N° <span id="num-span" style="color:var(--primary)"></span></h3>
+        <input type="text" id="nom" placeholder="Tu nombre completo">
+        <input type="tel" id="tel" placeholder="WhatsApp (ej: 584241234567)">
+        <button class="action" id="btn-env" onclick="hacerReserva()">CONFIRMAR RESERVA</button>
+        <button onclick="cerrarM()" style="background:none; color:gray; border:none; margin-top:12px;">CANCELAR</button>
+    </div>
+</div>
+
+<script>
+    const API = "https://script.google.com/macros/s/AKfycbwXyPtfuHndQh50JoGWA9toWYpaQ-XBnUIKqYnZNA7SO3XA1bkVH0qU_a58yncTvVKqmA/exec";
+    const WA_TLF = "584241868334";
+    let SELECCIONADO = null;
+    let ID_VALIDO = null;
+    let currentWinner = null;
+    
+    window.onload = () => { load(); setInterval(checkWinner, 10000); };
+    
+    async function load() {
+        try {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '<div class="loading-spinner">🔄 Cargando números...</div>';
+            
+            const res = await fetch(API);
+            const data = await res.json();
+            
+            console.log("Datos recibidos:", data);
+            
+            if (!data || !Array.isArray(data)) {
+                throw new Error("Datos inválidos del servidor");
+            }
+            
+            if (data.length === 0) {
+                grid.innerHTML = '<div class="error-msg">⚠️ No hay datos disponibles</div>';
+                return;
+            }
+            
+            grid.innerHTML = '';
+            let l=0, a=0, p=0;
+            
+            // Ordenar por número para asegurar orden correcto
+            const sortedData = [...data].sort((a,b) => {
+                let numA = parseInt(a.numero) || 0;
+                let numB = parseInt(b.numero) || 0;
+                return numA - numB;
+            });
+            
+            sortedData.forEach(item => {
+                // Asegurar que numero existe (puede venir como string o número)
+                let num = item.numero;
+                if (num === undefined || num === null) num = 0;
+                const est = (item.estado || "libre").toLowerCase();
+                const nombre = item.nombre || "";
+                
+                const div = document.createElement('div');
+                div.className = `numero ${est}`;
+                if (currentWinner && parseInt(num) === parseInt(currentWinner)) div.classList.add('winner');
+                
+                // Mostrar número con dos dígitos para mejor visualización
+                const numDisplay = num < 10 ? `0${num}` : num;
+                div.innerHTML = `<span>${numDisplay}</span>${nombre ? `<span class="nombre-mini">${nombre.substring(0,10)}</span>` : ''}`;
+                
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (nombre) {
+                        mostrarTooltip(e, `🎲 ${nombre}`);
+                    } else if (est === 'libre') {
+                        openM(num);
+                    } else if (est === 'apartado') {
+                        mostrarTooltip(e, `⏳ Apartado por: ${nombre || 'Alguien'}`);
+                    } else if (est === 'pagado') {
+                        mostrarTooltip(e, `✅ Pagado por: ${nombre || 'Alguien'} 🍀`);
+                    }
+                });
+                
+                div.addEventListener('mouseenter', (e) => {
+                    if (nombre) mostrarTooltip(e, `🎲 ${nombre}`);
+                });
+                
+                if(est === 'libre') { l++; }
+                else if(est === 'pagado') { p++; }
+                else if(est === 'apartado') { a++; }
+                grid.appendChild(div);
+            });
+            
+            document.getElementById('l-c').innerText = l;
+            document.getElementById('a-c').innerText = a;
+            document.getElementById('p-c').innerText = p;
+            
+        } catch(e) { 
+            console.error("Error:", e); 
+            document.getElementById('grid').innerHTML = '<div class="error-msg">❌ Error cargando. Reintentando...</div>';
+            setTimeout(load, 5000);
+        }
+    }
+    
+    let tooltipTimeout;
+    function mostrarTooltip(event, texto) {
+        const existing = document.querySelector('.tooltip-custom');
+        if(existing) existing.remove();
+        if(tooltipTimeout) clearTimeout(tooltipTimeout);
+        
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip-custom';
+        tooltip.textContent = texto;
+        document.body.appendChild(tooltip);
+        
+        let x, y;
+        if(event.touches) {
+            x = event.touches[0].clientX;
+            y = event.touches[0].clientY;
+        } else {
+            x = event.clientX;
+            y = event.clientY;
+        }
+        
+        tooltip.style.left = (x + 15) + 'px';
+        tooltip.style.top = (y - 30) + 'px';
+        
+        tooltipTimeout = setTimeout(() => tooltip.remove(), 1500);
+    }
+    
+    async function checkWinner() {
+        try {
+            const res = await fetch(`${API}?action=getWinner`);
+            const data = await res.json();
+            if(data.winner && data.winner != currentWinner) {
+                currentWinner = data.winner;
+                playFanfare();
+                showWinnerLights();
+                showToast(`🎉 NÚMERO GANADOR: ${currentWinner} 🎉`);
+                load();
+            }
+        } catch(e) { console.log("Winner check error:", e); }
+    }
+    
+    function playFanfare() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            oscillator.connect(gain);
+            gain.connect(audioCtx.destination);
+            oscillator.frequency.value = 880;
+            gain.gain.value = 0.2;
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), 200);
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator();
+                osc2.frequency.value = 440;
+                osc2.connect(gain);
+                osc2.start();
+                setTimeout(() => osc2.stop(), 200);
+            }, 250);
+        } catch(e) { console.log("Audio no soportado"); }
+    }
+    
+    function showWinnerLights() {
+        const container = document.querySelector('.header');
+        if(container) container.style.animation = 'winnerFlash 0.5s ease 3';
+        setTimeout(() => { if(container) container.style.animation = ''; }, 1500);
+    }
+    
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+    
+    function hacerReserva() {
+        const n = document.getElementById('nom').value.trim();
+        const t = document.getElementById('tel').value.trim();
+        if(!n || !t) return alert("❌ Faltan datos");
+        if(SELECCIONADO === null || SELECCIONADO === undefined) return alert("❌ Número no seleccionado");
+        
+        const randomID = Math.floor(1000 + Math.random() * 9000);
+        const ID_GENERADO = `RQ-${SELECCIONADO}-${randomID}`;
+        
+        const btn = document.getElementById('btn-env');
+        btn.innerText = "⏳ PROCESANDO...";
+        btn.disabled = true;
+        
+        fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                numero: SELECCIONADO,
+                nombre: n,
+                telefono: t,
+                fuerzaID: ID_GENERADO
+            })
+        }).catch(e => console.log("Error reserva:", e));
+        
+        setTimeout(() => {
+            const instrucciones = `✅ Reserva exitosa!\nNúmero: ${SELECCIONADO}\nID: ${ID_GENERADO}\n\n💰 Pago: Bs 2.500\nBanco: 0102 - C.I: 13.311.257\nReferencia: ${ID_GENERADO}\n\nLuego reporta en la app.`;
+            const msg = encodeURIComponent(instrucciones);
+            window.open(`https://wa.me/${t.replace(/^0+/, '')}?text=${msg}`);
+            setTimeout(() => location.reload(), 2000);
+        }, 1500);
+    }
+    
+    function buscarID() {
+        const id = document.getElementById('id-b').value.trim();
+        if(!id) return alert("Pon tu ID");
+        fetch(`${API}?buscarID=${id}`).then(r => r.json()).then(res => {
+            if(res.status === "Encontrado") {
+                ID_VALIDO = id;
+                document.getElementById('info-res').innerHTML = `✅ HALLADO: ${res.nombre}<br>🎲 Nro: ${res.numero}`;
+                document.getElementById('pago-form').style.display = 'block';
+            } else alert("❌ ID no encontrado");
+        }).catch(e => alert("Error de conexión"));
+    }
+    
+    function enviarPagoWA() {
+        const b = document.getElementById('bnc').value.trim();
+        const r = document.getElementById('ref').value.trim();
+        if(!b || !r) return alert("❌ Banco y referencia requeridos");
+        if(!ID_VALIDO) return alert("❌ Primero busca tu ID");
+        
+        const btn = document.querySelector('#pago-form button');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ ENVIANDO...";
+        
+        fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tipo: "PAGO", id: ID_VALIDO, banco: b, referencia: r })
+        }).catch(e => console.log("Error pago:", e));
+        
+        setTimeout(() => {
+            const msg = encodeURIComponent(`💵 REPORTE DE PAGO\nID: ${ID_VALIDO}\nBanco: ${b}\nReferencia: ${r}\nMonto: Bs 2.500`);
+            window.open(`https://wa.me/${WA_TLF}?text=${msg}`);
+            btn.innerText = originalText;
+            alert("✅ Pago reportado. Espera confirmación.");
+            setTimeout(() => location.reload(), 2000);
+        }, 1500);
+    }
+    
+    function verTab(n) {
+        document.getElementById('t1_cont').style.display = n===1 ? 'block' : 'none';
+        document.getElementById('t2_cont').style.display = n===2 ? 'block' : 'none';
+        document.getElementById('b1').className = `tab ${n===1?'active':''}`;
+        document.getElementById('b2').className = `tab ${n===2?'active':''}`;
+        if(n===2) document.getElementById('id-b').focus();
+    }
+    
+    function openM(n) { 
+        SELECCIONADO = n; 
+        document.getElementById('num-span').innerText = n; 
+        document.getElementById('m-res').style.display = 'flex'; 
+    }
+    
+    function cerrarM() { 
+        document.getElementById('m-res').style.display = 'none'; 
+        document.getElementById('nom').value = '';
+        document.getElementById('tel').value = '';
+        const btn = document.getElementById('btn-env');
+        btn.innerText = "CONFIRMAR RESERVA";
+        btn.disabled = false;
+    }
+</script>
+</body>
+</html>
