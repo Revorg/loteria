@@ -1,0 +1,428 @@
+<!DOCTYPE<!DOCTYPE html>
+ html>
+<html lang="es<html lang="es">
+<head">
+<head>
+<meta charset="UTF->
+<meta charset="UTF-8" />
+<meta8" />
+<meta name="viewport" content=" name="viewport" content="width=device-width, initial-scalewidth=device-width, initial-scale=1=1.0.0"" />
+ />
+<title><title>🛠️🛠️ Panel Admin – L Panel Admin – Loteríaotería Quántica</ Quánttitle>
+<style>
+ica</title>
+    *<style>
+    * { box-sizing: { box-sizing: border-box border-box; }
+    body {
+       ; }
+    body {
+        background: background: #000 #000;
+        color:;
+        color: #d #dff;
+ff;
+        font        font-family:-family: "Seg "Segoe UI", sansoe UI", sans-serif;
+-serif;
+        margin: 0;
+        margin: 0;
+        padding        padding: : 0;
+0;
+        text        text-align: center;
+-align: center;
+    }
+    }
+    #    #loginScreen {
+       loginScreen {
+        display: flex;
+ display: flex;
+        flex        flex-direction: column;
+-direction: column;
+        justify        justify-content:-content: center;
+ center;
+        align        align-items: center;
+        height: -items: center;
+        height: 100vh100vh;
+   ;
+    }
+    .login }
+    .login-box {
+        border-box {
+        border: : 2px solid #2px solid #0ff;
+        padding:0ff;
+        padding: 30 30px;
+        widthpx;
+        width: : 280px;
+        border-radius: 10px280px;
+        border-radius: 10px;
+       ;
+        box-shadow:  box-shadow: 0 0 0 0 15px #015px #0ff;
+ff;
+    }
+    input {
+           }
+    input {
+        width: 90 width: 90%;
+        padding: 10%;
+        padding: 10px;
+px;
+        margin-top: 10px;
+        margin-top: 10px;
+        border        border: : 1px1px solid #0ff solid #0ff;
+       ;
+        background: background: #000 #000;
+        color: #0;
+        color: #0ff;
+ff;
+        border        border-radius: 5-radius: 5px;
+px;
+        outline: none;
+           outline: none;
+    }
+    }
+    button {
+ button {
+        margin-top:        margin-top: 15px;
+        padding 15px;
+        padding: 10px: 10px 20 20px;
+        background: transparentpx;
+        background: transparent;
+        border: 2;
+        border: 2px solidpx solid #0 #0ff;
+        color: #ff;
+        color: #0ff0ff;
+        cursor:;
+        cursor: pointer;
+        border pointer;
+        border-radius: 5-radius: 5px;
+px;
+        transition        transition: 0.2s: 0.2s;
+   ;
+    }
+    }
+    button:hover { background button:hover { background: #: #0ff; color: #000; box-shadow0ff; color: #000; box-shadow: : 0 0 20px0 0 20px #0 #0ff; }
+   ff; }
+    #panel #panel { display: none; padding:  { display: none; padding: 15px; }
+15px; }
+    h    h1 { text-shadow: 1 { text-shadow: 0 0 0 0 10px10px #0 #0ff; font-sizeff; font-size: : 1.5em1.5em; }
+; }
+    table { width    table { width: : 100%; margin:100%; margin: 15 15px autopx auto; border; border-collapse-collapse: collapse; font-size: 12px;: collapse; font-size: 12px; display: display: block; overflow-x: auto block; overflow-x: auto; }
+    th; }
+    th, td { border, td: 1px { border:  solid #0ff1px solid #0ff; padding: ; padding: 6px; text6px; text-align: center;-align: center; }
+    th { }
+    th { background: background: rgba( rgba(0,0, 255 255, 255, 0, 255, 0.1); }
+    .dashboard { padding: 12.1); }
+    .dashboard { padding: 12px; border: 2px; border: 2px solid #0ff; border-radiuspx solid #0ff; border-radius: : 10px; margin10px; margin-bottom:-bottom: 15 15px; }
+   px; }
+    .count .countdown { font-sizedown { font-size: : 18px; margin18px-top:; margin-top: 8 8px; text-shadow: 0 0 10px #0ff; }
+    .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;px; text-shadow: 0 0 10px #0ff; }
+    .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+ flex-wrap: wrap; }
+    .    .winner-inputwinner-input { margin { margin: : 10px10px 0; display 0; display: flex: flex;; gap gap: : 8px8px; justify; justify-content:-content: center; center; flex-wrap flex-wrap: wrap: wrap; }
+; }
+    .winner-input    .winner-input input { width: input { width: 120px; 120px; margin: 0; }
+ margin: 0; }
+    .    .winner-inputwinner-input button { margin: button { margin: 0 0; }
+    @; }
+    @media (max-widthmedia (max-width: 600px: 600px) {) { table { font-size table { font-size: : 10px; }10px; } th, th, td { td { padding: padding: 4 4px;px; } }
+ } }
+</style>
+</head>
+</style>
+</head>
+<body>
+
+<div id<body>
+
+<div id="loginScreen">
+="loginScreen">
+       <div class <div class="login-box">
+        <h2>🔐 Acc="login-box">
+        <h2>🔐 Acceso Admin</heso Admin</h2>
+        <input type2>
+        <input type="password" id="password" id="cl="clave"ave" placeholder=" placeholder="Clave de acceso" autClave de acceso" autocomplete="ocomplete="off">
+off">
+               <button onclick <button onclick="valid="validarClave()arCl">Entave()">Entrar</rar</button>
+button>
+               <p id <p id="error" style="color="error" style="color:#f55; margin-top:10:#f55; margin-top:10px;"></px;"></p>
+p>
+    </    </div>
+</div>
+
+<divdiv>
+</div>
+
+<div id=" id="panel">
+panel">
+    <h1    <h1>>🛠️ Panel🛠️ Panel Admin – Loter Admin – Lotería Quía Quántica</hántica</h1>
+1>
+    <div class="dashboard    <div class="dashboard">
+        <h">
+        <h3>3>📊📊 Dashboard</h3 Dashboard</h3>
+       >
+        <p id="stats"></p>
+ <p id="stats"></p>
+               <div class <div class="countdown" id="countdown"></div="countdown" id="countdown"></div>
+   >
+    </div>
+    
+ </div>
+    
+       <div class="btn <div class="btn-group">
+-group">
+               <button onclick="c <button onclick="cargarDatos()">argarDatos()">🔄 Refres🔄 Refrescar</car</button>
+       button>
+        <button onclick="limpiarSorteo()">🧹 Lim <button onclick="limpiarSorteo()">🧹 Limpiar sorteo</buttonpiar sorteo</button>
+   >
+    </div>
+    
+ </div>
+    
+    <div class    <div class="winner-input">
+="winner-input">
+        <input type="number" id        <input type="number" id="winner="winnerNum" placeholder="Num" placeholder="N°N° ganador ganador">
+        <button">
+        <button onclick="setWinner onclick="setWinner()">🎲()">🎲 Marcar Ganador Marcar Ganador</button>
+   </button>
+    </div>
+    
+ </div>
+    
+    <div style    <div style="overflow-x:="overflow-x: auto;">
+ auto;">
+        <table id="tabla">
+        <table id="tabla">
+                       <thead>
+                <tr> <thead>
+                <tr><th><th>N°N°</th><</th><th>Estado</thth>Estado</th><th>Nombre</th><th>Nombre</th><th>Tel><th>Teléfono</théfono</th><th><th>ID>ID</th</th><th><th>Ban>Banco</thco</th><th>><th>Monto</th><thMonto</th><th>Ref>Ref</th</th></></trtr>
+            </thead>
+           >
+            </thead>
+            <tbody <tbody></tbody></tbody>
+        </table>
+   >
+        </table>
+    </div>
+</ </div>
+</div>
+
+div>
+
+<script>
+<script>
+const CLAconst CLAVE = "vaudy*VE = "vaudy*$#";
+const$#";
+const API = "https API = "https://script://script.google.com.google.com/macros/s/macros/s/AK/AKfycbwXyPtfycbwXyPtfuHfuHndQndQh50h50JoGJoGWA9toWWA9toWYpaYpaQ-XBnUIQ-XBnUIKqKqYnZYnZNA7NA7SO3SO3XA1XA1bkVH0bkVH0qU_a58yncTqU_a58vVyncTvVKqKqmA/exec";
+
+mA/exec";
+
+function validarClfunction validarClave()ave() {
+    const clave {
+   Ingresada = const claveIngresada = document document.getElementById("cl.getElementById("clave").ave").valuevalue;
+    if (claveIngresada;
+    if (claveIngresada === CLAVE) === CLAVE) {
+        document.getElementById("loginScreen"). {
+        document.getElementById("loginScreen").style.displaystyle.display = " = "none";
+        documentnone";
+.getElementById("panel").        document.getElementById("style.displaypanel").style.display = "block";
+        car = "block";
+        cargarDatos();
+        inicigarDatos();
+        iniciarCuentaRegarCuentaRegresiva();
+   resiva();
+    } else } else {
+        {
+        document.getElementById("error").inner document.getElementById("error").innerText = "Text = "❌ Cl❌ Clave incorrectave incorrecta";
+        document.getElementById("a";
+        document.getElementById("claveclave").value = "";
+").value = "";
+        document.getElementById("clave        document.getElementById("clave").focus();
+    }
+}
+
+").focus();
+    }
+}
+
+document.getElementByIddocument.getElementById("clave("clave").addEventListener("key").addEventListener("keypress", function(e) {
+press", function(e) {
+    if (e.key ===    if (e.key === "Enter "Enter") {
+        validarCl") {
+        validarClave();
+    }
+ave();
+    }
+});
+
+async function cargarD});
+
+async function cargarDatos() {
+    try {
+atos() {
+    try {
+        const res =        const res = await fetch(API);
+        const data await fetch(API);
+        const data = await = await res.json();
+        const t res.json();
+        const tbody = document.querySelectorbody = document.querySelector("#tab("#tabla tla tbody");
+body");
+        t        tbody.innerHTMLbody.innerHTML = "";
+ = "";
+        let        let libres libres =  = 0, apartados = 0,0, apartados = 0, pagados = 0;
+        
+        pagados = 0;
+        
+        // Ordenar // Or por númerodenar
+        const sorted por número
+        const sortedData = [...dataData = [...data].sort((a].sort((a,b) => {
+,b) => {
+            let            let numA numA = parseInt(a.num = parseInt(a.numero) || ero)0;
+ || 0;
+            let num            letB = parseInt numB = parseInt(b.num(b.numero) || ero) || 0;
+0;
+            return numA            return numA - num - numB;
+B;
+        });
+        
+               });
+        
+        sortedData.forEach(row => {
+ sortedData.forEach(row => {
+            const numero = row.num            const numero = row.numero !==ero !== undefined ? row.num undefined ? row.numero : (row.n ||ero : (row.n || 0);
+            0);
+            const estado const estado = ( = (rowrow..estado || "libreestado || "libre").to").toLowerCase();
+LowerCase();
+            if            if(est(estado === "libado === "libre")re") libres++;
+            else if libres++;
+            else if(estado ===(estado === "apartado "apartado") apart") apartados++;
+ados++;
+            else if(            else if(estado === "estado === "pagado") pagados++;
+pagado") pagados++;
+            
+            const tr            
+            const tr = document = document.createElement("tr");
+.createElement("tr");
+            tr            tr.innerHTML =.innerHTML = `
+                `
+                <td><strong <td><strong>${numero}</>${numero}</strong></td>
+               strong></td>
+                <td>${estado} <td>${estado} ${est ${estado === "pagado" ? "ado === "pagado" ? "🍀🍀" :" : ""}</td>
+ ""}</td>
+                               <td> <td>${row.nombre${row.nombre || "-"}</ || "-"}</td>
+td>
+                               <td>${row <td>${row.tele.telefono || "-"fono || "-"}</td}</td>
+               >
+                <td <td>${row.id>${row.id || "-"}</td>
+ || "-"}</td>
+                <td>                <td>${row${row.banco || "-"}</td.banco || "-"}</td>
+               >
+                <td>${ <td>${row.monto || "-"row.monto || "-"}</td}</td>
+               >
+                <td>${ <td>${row.referenciarow.referencia || "- || "-"}</td>
+            `"}</td>
+            `;
+           ;
+            tbody tbody.appendChild(tr);
+.appendChild(tr);
+        });
+        });
+        
+        document.getElementById        
+        document.getElementById("stats("stats").inner").innerHTML =HTML = ` `📌 Libres: ${lib📌 Libres: ${libres} |res} | 📝 Apartados: 📝 Apartados: ${ap ${apartados} | ✅ Pagartados} | ✅ Pagados: ${pagados}ados: ${pagados} 🍀`;
+ 🍀`;
+    } catch(e    } catch(e) {) { 
+        
+        console.error("Error console.error("Error cargando:", e); cargando:", e); 
+        
+        document.getElementById("stats document.getElementById("stats").innerHTML = "").innerHTML = "❌ Error cargando datos❌ Error cargando datos";
+    }
+}
+
+";
+    }
+}
+
+async functionasync function limpi limpiarSarSorteo() {
+    iforteo() {
+    if(!confirm(!confirm("⚠("⚠️ ¿️ ¿SeguroSeguro que deseas lim que deseas limpiarpiar el sorteo? el sorteo? Esta acción Esta acción no se puede deshacer no se puede deshacer.")) return;
+    try.")) return;
+ {
+           try await fetch(API {
+        await fetch(API + " + "?limpiar=true");
+?limpiar=true");
+        alert("✅        alert("✅ Sorte Sorteo limpiado");
+       o limpiado");
+        cargarDatos cargar();
+   Datos();
+    } catch(e) {
+        } catch(e) {
+        alert(" alert("❌❌ Error al Error al limpi limpiar");
+ar");
+    }
+    }
+}
+
+async function setWinner()}
+
+async function setWinner() {
+    {
+    const winnerNum = const winner document.getElementByIdNum = document.getElementById("winner("winnerNum").value;
+    ifNum").value;
+    if(!winnerNum)(!winnerNum) return alert return alert("Ing("Ingrese unrese un número gan número ganador");
+ador");
+    try {
+           try {
+        await fetch await fetch(API(API + " + "?setWinner="?set + winnerWinner=" + winnerNum);
+Num);
+        alert        alert(`✅(`✅ Número ${winner Número ${winnerNum}Num} marcado marcado como gan como ganador`);
+        document.getElementById("ador`);
+        document.getElementById("winnerNum").value = "";
+winnerNum").value = "";
+    }    } catch(e catch(e) {
+) {
+        alert        alert("❌ Error al mar("❌ Error al marcar gancar ganador");
+    }
+}
+
+functionador");
+    }
+}
+
+function iniciarCuentaRegres iniciarCuentaRegresiva() {
+   iva() {
+    const fecha const fechaSorteSorteo = new Dateo = new Date("202("2026-03-6-03-30T30T19:19:00:00:00-04:00-04:00");
+    set00");
+    setInterval(() => {
+        const ahora =Interval(() => {
+        const ahora = new Date new Date();
+       ();
+        const diff const diff = fecha = fechaSorteSorteo -o - ahora;
+        if ahora;
+        if (diff <= 0) (diff <= 0) {
+            {
+            document.getElementById("countdown").innerText = " document.getElementById("countdown").innerText = "🎲 ¡S🎲 ¡SORTEO EN CURORTEO EN CURSO!SO! 🎲";
+            return 🎲";
+            return;
+        }
+        const d;
+        }
+        const d = Math = Math.floor(d.floor(diff / (1000 *iff / (1000 * 60 60 * 60 * * 60 * 24 24));
+       ));
+        const h = Math.floor(( const h = Math.floor((diff /diff / (1000 * (1000 * 60 *  60 * 60))60)) %  % 24);
+24);
+        const m = Math.floor((diff / (1000 *         const m = Math.floor((diff / (1000 * 60)) % 60);
+60)) % 60);
+        const        const s = s = Math.floor Math.floor((diff((diff /  / 10001000) %) % 60 60);
+        document.getElementById);
+        document.getElementById("countdown").innerText("countdown").innerText = ` = `⏰ ${⏰ ${d}d ${h}h ${d}d ${hm}m}h ${m}m ${s ${s}s`;
+    },}s`;
+    }, 100 1000);
+}
+
+set0);
+}
+
+setInterval(cInterval(cargarDatosargarDatos, 30000);
+, </30000script>
+</body);
+</script>
+</body>
+</html>
