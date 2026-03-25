@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🛠️ Panel Admin – Lotería Quántica</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        background: #000;
+        color: #dff;
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+    #loginScreen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .login-box {
+        border: 2px solid #0ff;
+        padding: 30px;
+        width: 280px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px #0ff;
+    }
+    input {
+        width: 90%;
+        padding: 10px;
+        margin-top: 10px;
+        border: 1px solid #0ff;
+        background: #000;
+        color: #0ff;
+        border-radius: 5px;
+        outline: none;
+    }
+    button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: transparent;
+        border: 2px solid #0ff;
+        color: #0ff;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: 0.2s;
+    }
+    button:hover { background: #0ff; color: #000; box-shadow: 0 0 20px #0ff; }
+    #panel { display: none; padding: 15px; }
+    h1 { text-shadow: 0 0 10px #0ff; font-size: 1.5em; }
+    table { width: 100%; margin: 15px auto; border-collapse: collapse; font-size: 12px; display: block; overflow-x: auto; }
+    th, td { border: 1px solid #0ff; padding: 6px; text-align: center; }
+    th { background: rgba(0, 255, 255, 0.1); }
+    .dashboard { padding: 12px; border: 2px solid #0ff; border-radius: 10px; margin-bottom: 15px; }
+    .countdown { font-size: 18px; margin-top: 8px; text-shadow: 0 0 10px #0ff; }
+    .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+    .winner-input { margin: 10px 0; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .winner-input input { width: 120px; margin: 0; }
+    .winner-input button { margin: 0; }
+    @media (max-width: 600px) { table { font-size: 10px; } th, td { padding: 4px; } }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>🔐 Acceso Admin</h2>
+        <input type="password" id="clave" placeholder="Clave de acceso" autocomplete="off">
+        <button onclick="validarClave()">Entrar</button>
+        <p id="error" style="color:#f55; margin-top:10px;"></p>
+    </div>
+</div>
+
+<div id="panel">
+    <h1>🛠️ Panel Admin – Lotería Quántica</h1>
+    <div class="dashboard">
+        <h3>📊 Dashboard</h3>
+        <p id="stats"></p>
+        <div class="countdown" id="countdown"></div>
+    </div>
+    
+    <div class="btn-group">
+        <button onclick="cargarDatos()">🔄 Refrescar</button>
+        <button onclick="limpiarSorteo()">🧹 Limpiar sorteo</button>
+    </div>
+    
+    <div class="winner-input">
+        <input type="number" id="winnerNum" placeholder="N° ganador">
+        <button onclick="setWinner()">🎲 Marcar Ganador</button>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table id="tabla">
+            <thead>
+                <tr><th>N°</th><th>Estado</th><th>Nombre</th><th>Teléfono</th><th>ID</th><th>Banco</th><th>Monto</th><th>Ref</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const CLAVE = "vaudy*$#";
+const API = "https://script.google.com/macros/s/AKfycbwXyPtfuHndQh50JoGWA9toWYpaQ-XBnUIKqYnZNA7SO3XA1bkVH0qU_a58yncTvVKqmA/exec";
+
+function validarClave() {
+    const claveIngresada = document.getElementById("clave").value;
+    if (claveIngresada === CLAVE) {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        cargarDatos();
+        iniciarCuentaRegresiva();
+    } else {
+        document.getElementById("error").innerText = "❌ Clave incorrecta";
+        document.getElementById("clave").value = "";
+        document.getElementById("clave").focus();
+    }
+}
+
+// Permitir Enter en el campo de clave
+document.getElementById("clave").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        validarClave();
+    }
+});
+
+async function cargarDatos() {
+    try {
+        const res = await fetch(API);
+        const data = await res.json();
+        const tbody = document.querySelector("#tabla tbody");
+        tbody.innerHTML = "";
+        let libres = 0, apartados = 0, pagados = 0;
+        
+        data.forEach(row => {
+            const estado = (row.estado || "libre").toLowerCase();
+            if(estado === "libre") libres++;
+            else if(estado === "apartado") apartados++;
+            else if(estado === "pagado") pagados++;
+            
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${row.numero}</strong></td>
+                <td>${estado} ${estado === "pagado" ? "🍀" : ""}</td>
+                <td>${row.nombre || "-"}</td>
+                <td>${row.telefono || "-"}</td>
+                <td>${row.id || "-"}</td>
+                <td>${row.banco || "-"}</td>
+                <td>${row.monto || "-"}</td>
+                <td>${row.referencia || "-"}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        document.getElementById("stats").innerHTML = `📌 Libres: ${libres} | 📝 Apartados: ${apartados} | ✅ Pagados: ${pagados} 🍀`;
+    } catch(e) { 
+        console.error("Error cargando:", e); 
+        document.getElementById("stats").innerHTML = "❌ Error cargando datos";
+    }
+}
+
+async function limpiarSorteo() {
+    if(!confirm("⚠️ ¿Seguro que deseas limpiar el sorteo? Esta acción no se puede deshacer.")) return;
+    try {
+        const res = await fetch(API + "?limpiar=true");
+        alert("✅ Sorteo limpiado");
+        cargarDatos();
+    } catch(e) {
+        alert("❌ Error al limpiar");
+    }
+}
+
+async function setWinner() {
+    const winnerNum = document.getElementById("winnerNum").value;
+    if(!winnerNum) return alert("Ingrese un número ganador");
+    try {
+        // Llamar a AppScript para guardar ganador en celda K1
+        await fetch(API + "?setWinner=" + winnerNum);
+        alert(`✅ Número ${winnerNum} marcado como ganador`);
+        document.getElementById("winnerNum").value = "";
+    } catch(e) {
+        alert("❌ Error al marcar ganador");
+    }
+}
+
+function iniciarCuentaRegresiva() {
+    const fechaSorteo = new Date("2026-03-30T19:00:00-04:00");
+    setInterval(() => {
+        const ahora = new Date();
+        const diff = fechaSorteo - ahora;
+        if (diff <= 0) {
+            document.getElementById("countdown").innerText = "🎲 ¡SORTEO EN CURSO! 🎲";
+            return;
+        }
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        document.getElementById("countdown").innerText = `⏰ ${d}d ${h}h ${m}m ${s}s`;
+    }, 1000);
+}
+
+// Cargar datos cada 30 segundos automáticamente
+setInterval(cargarDatos, 30000);
+</script>
+</body>
+</html>
