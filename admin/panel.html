@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin</title>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    body {
+        background: #000;
+        color: #0ff;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 15px;
+        text-align: center;
+    }
+    #loginScreen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .login-box {
+        border: 2px solid #0ff;
+        padding: 30px;
+        width: 280px;
+        border-radius: 10px;
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background: #000;
+        border: 1px solid #0ff;
+        color: #0ff;
+        border-radius: 5px;
+    }
+    button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: transparent;
+        border: 2px solid #0ff;
+        color: #0ff;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    button:hover {
+        background: #0ff;
+        color: #000;
+    }
+    #panel {
+        display: none;
+    }
+    table {
+        width: 100%;
+        margin: 15px 0;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+    th, td {
+        border: 1px solid #0ff;
+        padding: 6px;
+        text-align: center;
+    }
+    th {
+        background: rgba(0,255,255,0.1);
+    }
+    .dashboard {
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    .countdown {
+        font-size: 16px;
+        margin-top: 8px;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    .winner-input {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    .winner-input input {
+        width: 120px;
+        margin: 0;
+    }
+    @media (max-width: 600px) {
+        table { font-size: 10px; }
+        th, td { padding: 4px; }
+    }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>Acceso Admin</h2>
+        <input type="password" id="clave" placeholder="Clave">
+        <button onclick="validarClave()">Entrar</button>
+        <p id="error" style="color:#f55;"></p>
+    </div>
+</div>
+
+<div id="panel">
+    <h1>Panel Admin</h1>
+    
+    <div class="dashboard">
+        <h3>Dashboard</h3>
+        <p id="stats"></p>
+        <div class="countdown" id="countdown"></div>
+    </div>
+    
+    <div class="btn-group">
+        <button onclick="cargarDatos()">Refrescar</button>
+        <button onclick="limpiarSorteo()">Limpiar</button>
+    </div>
+    
+    <div class="winner-input">
+        <input type="number" id="winnerNum" placeholder="N° ganador">
+        <button onclick="setWinner()">Marcar Ganador</button>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table id="tabla">
+            <thead>
+                <tr><th>N°</th><th>Estado</th><th>Nombre</th><th>Teléfono</th><th>ID</th><th>Banco</th><th>Ref</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const CLAVE = "vaudy*$#";
+const API = "https://script.google.com/macros/s/AKfycbwXyPtfuHndQh50JoGWA9toWYpaQ-XBnUIKqYnZNA7SO3XA1bkVH0qU_a58yncTvVKqmA/exec";
+
+function validarClave() {
+    if(document.getElementById("clave").value === CLAVE) {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        cargarDatos();
+        iniciarCuentaRegresiva();
+    } else {
+        document.getElementById("error").innerHTML = "Clave incorrecta";
+    }
+}
+
+document.getElementById("clave").addEventListener("keypress", function(e) {
+    if(e.key === "Enter") validarClave();
+});
+
+async function cargarDatos() {
+    try {
+        const res = await fetch(API);
+        const data = await res.json();
+        const tbody = document.querySelector("#tabla tbody");
+        tbody.innerHTML = "";
+        let libres = 0, apartados = 0, pagados = 0;
+        
+        for(let i = 0; i < data.length; i++) {
+            const row = data[i];
+            const num = row.numero !== undefined ? row.numero : i;
+            const estado = (row.estado || "libre").toLowerCase();
+            
+            if(estado === "libre") libres++;
+            else if(estado === "apartado") apartados++;
+            else if(estado === "pagado") pagados++;
+            
+            const tr = document.createElement("tr");
+            tr.innerHTML = "<td>" + num + "</td>" +
+                          "<td>" + estado + (estado === "pagado" ? " 🍀" : "") + "</td>" +
+                          "<td>" + (row.nombre || "-") + "</td>" +
+                          "<td>" + (row.telefono || "-") + "</td>" +
+                          "<td>" + (row.id || "-") + "</td>" +
+                          "<td>" + (row.banco || "-") + "</td>" +
+                          "<td>" + (row.referencia || "-") + "</td>";
+            tbody.appendChild(tr);
+        }
+        
+        document.getElementById("stats").innerHTML = "Libres: " + libres + " | Apartados: " + apartados + " | Pagados: " + pagados + " 🍀";
+    } catch(e) {
+        console.log(e);
+        document.getElementById("stats").innerHTML = "Error cargando";
+    }
+}
+
+function limpiarSorteo() {
+    if(confirm("¿Limpiar sorteo?")) {
+        alert("Función en desarrollo");
+    }
+}
+
+function setWinner() {
+    const num = document.getElementById("winnerNum").value;
+    if(num) alert("Ganador " + num + " marcado");
+    else alert("Ingrese número");
+}
+
+function iniciarCuentaRegresiva() {
+    const fecha = new Date("2026-03-30T19:00:00-04:00");
+    setInterval(function() {
+        const ahora = new Date();
+        const diff = fecha - ahora;
+        if(diff <= 0) {
+            document.getElementById("countdown").innerHTML = "Sorteo en curso";
+            return;
+        }
+        const d = Math.floor(diff / (86400000));
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById("countdown").innerHTML = d + "d " + h + "h " + m + "m " + s + "s";
+    }, 1000);
+}
+
+setInterval(cargarDatos, 30000);
+</script>
+</body>
+</html>
